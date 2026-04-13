@@ -90,16 +90,46 @@ pnpm new:miniapp habit-tracker --title "Habit Tracker" --desc "Seguimiento de h�
 
 Opciones soportadas:
 
-- `--title <texto>`
-- `--desc <texto>`
-- `--router`
-- `--no-pwa`
-- `--theme <hex>`
-- `--background <hex>`
-- `--category <texto>`
-- `--tags <csv>`
-- `--icon <nombre>`
-- `--listed=false`
+- `--title <texto>`: Nombre amigable de la miniapp. Se usa en el launcher `home` y en el `manifest` PWA.
+	- Ejemplo: `--title "Habit Tracker"`
+
+- `--desc <texto>`: Descripción corta de la app que aparece en el launcher y metadatos.
+	- Ejemplo: `--desc "Seguimiento de hábitos"`
+
+- `--router`: Activa el modo SPA con enrutador (cliente). El generador establecerá `router: true` en `app.config.json` y creará `public/404.html` para que GitHub Pages reescriba rutas a la app. Usar cuando la app necesita rutas internas (p.ej. `/settings`).
+
+- `--no-pwa`: No genera la configuración PWA (no `manifest`, ni service worker ni copiado de iconos PWA). Útil si no quieres funcionalidades offline.
+
+- `--theme <hex>`: Color primario en formato hexadecimal. Se aplica a `manifest.theme_color`, meta `theme-color` y variables CSS de la plantilla.
+	- Ejemplo: `--theme "#0f766e"`
+
+- `--background <hex>`: Color de fondo (hex) para `manifest.background_color` y estilos de pantalla de carga.
+	- Ejemplo: `--background "#ffffff"`
+
+- `--category <texto>`: Categoría libre que se guarda en `app.config.json` y sirve para agrupar/filtrar en el launcher `home`.
+	- Ejemplo: `--category "productivity"`
+
+- `--tags <csv>`: Etiquetas separadas por comas. Se convierten en un array en la configuración y ayudan a búsqueda/filtrado en `home`. Los espacios alrededor de comas se recortan.
+	- Ejemplo: `--tags "habit,productivity,offline"`
+
+- `--icon <nombre>`: Nombre base del icono PWA a usar (el generador buscará los assets de iconos incluidos y los copiará/ajustará al `manifest`).
+	- Ejemplo: `--icon "leaf"`
+
+- `--listed=false`: Indica que la app no debe aparecer listada en el launcher `home`. Por defecto las apps se listan; úsalo para apps privadas o en desarrollo.
+	- Ejemplo: `--listed=false`
+
+Ejemplo completo:
+
+```
+pnpm new:miniapp habit-tracker \
+	--title "Habit Tracker" \
+	--desc "Seguimiento de hábitos" \
+	--router \
+	--theme "#0f766e" \
+	--background "#ffffff" \
+	--tags "habit,productivity" \
+	--icon "leaf"
+```
 
 Qué hace el generador:
 
@@ -210,6 +240,3 @@ git commit -m "Add weekly-planner miniapp"
 git push
 ```
 
-## Manual detallado
-
-La guía completa está en `docs/MANUAL_REPO_Y_GITHUB_ACTIONS.md`.

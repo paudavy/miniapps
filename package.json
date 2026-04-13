@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@10.6.5",
   "scripts": {
-    "new:miniapp": "pnpm --filter @miniapps/create-miniapp exec create-miniapp",
+    "new:miniapp": "node tooling/create-miniapp/src/cli.js",
     "validate:miniapps": "node scripts/validate-miniapps.mjs",
     "generate:home": "node scripts/generate-home-registry.mjs",
     "build:pages": "node scripts/build-pages.mjs",
