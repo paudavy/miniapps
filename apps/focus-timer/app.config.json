@@ -1,0 +1,16 @@
+{
+  "name": "focus-timer",
+  "title": "Focus Timer",
+  "description": "Temporizador pomodoro simple offline.",
+  "listed": true,
+  "pwa": true,
+  "router": true,
+  "themeColor": "#dc2626",
+  "backgroundColor": "#ffffff",
+  "icon": "default",
+  "tags": [
+    "timer",
+    "pomodoro"
+  ],
+  "category": "utilities"
+}

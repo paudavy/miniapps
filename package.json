@@ -1,0 +1,16 @@
+{
+  "name": "miniapps",
+  "private": true,
+  "packageManager": "pnpm@10.6.5",
+  "scripts": {
+    "new:miniapp": "pnpm --filter @miniapps/create-miniapp exec create-miniapp",
+    "validate:miniapps": "node scripts/validate-miniapps.mjs",
+    "generate:home": "node scripts/generate-home-registry.mjs",
+    "build:pages": "node scripts/build-pages.mjs",
+    "preview:pages": "node scripts/preview-pages.mjs",
+    "check": "pnpm validate:miniapps"
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}

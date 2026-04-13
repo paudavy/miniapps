@@ -1,0 +1,15 @@
+{
+  "name": "home",
+  "title": "Miniapps",
+  "description": "Lanzador de miniapps",
+  "listed": false,
+  "pwa": true,
+  "router": false,
+  "themeColor": "#111827",
+  "backgroundColor": "#ffffff",
+  "icon": "default",
+  "tags": [
+    "launcher"
+  ],
+  "category": "system"
+}

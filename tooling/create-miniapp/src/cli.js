@@ -1,0 +1,308 @@
+#!/usr/bin/env node
+import { copyFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
+
+const RESERVED = new Set(['home', 'shared', 'config', 'tooling']);
+const DEFAULTS = {
+  title: '',
+  desc: '',
+  router: false,
+  pwa: true,
+  theme: '#2563eb',
+  background: '#ffffff',
+  category: 'utilities',
+  tags: [],
+  icon: 'default',
+  listed: true
+};
+
+function parseArgs(argv) {
+  const args = { slug: argv[2], ...DEFAULTS };
+
+  for (let index = 3; index < argv.length; index += 1) {
+    const current = argv[index];
+    if (current === '--router') args.router = true;
+    else if (current === '--no-pwa') args.pwa = false;
+    else if (current === '--listed=false') args.listed = false;
+    else if (current === '--title') args.title = argv[++index] || '';
+    else if (current === '--desc') args.desc = argv[++index] || '';
+    else if (current === '--theme') args.theme = argv[++index] || DEFAULTS.theme;
+    else if (current === '--background') args.background = argv[++index] || DEFAULTS.background;
+    else if (current === '--category') args.category = argv[++index] || DEFAULTS.category;
+    else if (current === '--tags') args.tags = (argv[++index] || '').split(',').map((value) => value.trim()).filter(Boolean);
+    else if (current === '--icon') args.icon = argv[++index] || DEFAULTS.icon;
+  }
+
+  return args;
+}
+
+function ensureValidSlug(slug) {
+  if (!slug) throw new Error('Debes indicar un slug.');
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error('Slug inválido. Usa kebab-case.');
+  if (RESERVED.has(slug)) throw new Error('Slug reservado.');
+}
+
+function titleFromSlug(slug) {
+  return slug.split('-').map((part) => part[0].toUpperCase() + part.slice(1)).join(' ');
+}
+
+function write(relativePath, content) {
+  const filePath = join(process.cwd(), relativePath);
+  mkdirSync(dirname(filePath), { recursive: true });
+  writeFileSync(filePath, content, 'utf8');
+}
+
+function copyDefaultIcons(appDir) {
+  const publicDir = join(appDir, 'public');
+  mkdirSync(publicDir, { recursive: true });
+  copyFileSync(resolve(process.cwd(), 'assets/pwa/pwa-192.png'), join(publicDir, 'pwa-192.png'));
+  copyFileSync(resolve(process.cwd(), 'assets/pwa/pwa-512.png'), join(publicDir, 'pwa-512.png'));
+}
+
+function buildIndexHtml({ title, theme, router }) {
+  const redirectScript = router
+    ? `
+    <script>
+      const qs = new URLSearchParams(location.search);
+      const redirect = qs.get('redirect');
+      if (redirect) {
+        history.replaceState(null, '', decodeURIComponent(redirect));
+      }
+    </script>`
+    : '';
+
+  return `<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${title}</title>
+    <meta name="theme-color" content="${theme}" />
+  </head>
+  <body>
+    <div id="app"></div>${redirectScript}
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>`;
+}
+
+function buildViteConfig({ slug, pwa }) {
+  const baseLine = `  return repo ? \`/\${repo}/${slug}/\` : '/${slug}/';`;
+  const pwaPlugin = pwa
+    ? `,
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['pwa-192.png', 'pwa-512.png'],
+      manifest: {
+        name: appConfig.title,
+        short_name: appConfig.title,
+        start_url: base,
+        scope: base,
+        display: 'standalone',
+        background_color: appConfig.backgroundColor,
+        theme_color: appConfig.themeColor,
+        icons: [
+          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+        ]
+      }
+    })`
+    : '';
+
+  return [
+    "import { defineConfig } from 'vite';",
+    "import preact from '@preact/preset-vite';",
+    "import { VitePWA } from 'vite-plugin-pwa';",
+    "import appConfig from './app.config.json';",
+    '',
+    'function getPagesBase() {',
+    "  const repo = process.env.GITHUB_REPOSITORY?.split('/')[1] || process.env.VITE_REPO_NAME || '';",
+    baseLine,
+    '}',
+    '',
+    'const base = getPagesBase();',
+    '',
+    'export default defineConfig({',
+    '  base,',
+    '  plugins: [',
+    `    preact()${pwaPlugin}`,
+    '  ]',
+    '});',
+    ''
+  ].join('\n');
+}
+
+function build404Html({ slug, title }) {
+  return `<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>${title} - redirect</title>
+    <script>
+      const repo = location.pathname.split('/').filter(Boolean)[0] || '';
+      const base = repo ? '/' + repo + '/${slug}/' : '/${slug}/';
+      const path = location.pathname.replace(base, '');
+      const query = location.search || '';
+      location.replace(base + '?redirect=' + encodeURIComponent('/' + path + query + location.hash));
+    </script>
+  </head>
+  <body></body>
+</html>`;
+}
+
+function generateFiles(args) {
+  const slug = args.slug;
+  const title = args.title || titleFromSlug(slug);
+  const description = args.desc || `${title} offline`;
+  const appDir = join('apps', slug);
+
+  write(join(appDir, 'app.config.json'), JSON.stringify({
+    name: slug,
+    title,
+    description,
+    listed: args.listed,
+    pwa: args.pwa,
+    router: args.router,
+    themeColor: args.theme,
+    backgroundColor: args.background,
+    icon: args.icon,
+    tags: args.tags,
+    category: args.category
+  }, null, 2));
+
+  write(join(appDir, 'package.json'), JSON.stringify({
+    name: `@miniapps/${slug}`,
+    private: true,
+    version: '0.1.0',
+    type: 'module',
+    scripts: {
+      dev: 'vite',
+      build: 'vite build',
+      preview: 'vite preview'
+    },
+    dependencies: {
+      preact: '^10.26.4'
+    },
+    devDependencies: {
+      '@preact/preset-vite': '^2.10.1',
+      typescript: '^5.9.3',
+      vite: '^7.1.0',
+      'vite-plugin-pwa': '^1.0.0'
+    }
+  }, null, 2));
+
+  write(join(appDir, 'tsconfig.json'), JSON.stringify({
+    extends: '../../tsconfig.base.json',
+    compilerOptions: { types: ['vite/client'] },
+    include: ['src', 'vite.config.ts']
+  }, null, 2));
+
+  write(join(appDir, 'index.html'), buildIndexHtml({ title, theme: args.theme, router: args.router }));
+  write(join(appDir, 'vite.config.ts'), buildViteConfig({ slug, pwa: args.pwa }));
+
+  copyDefaultIcons(appDir);
+
+  if (args.router) {
+    write(join(appDir, 'public/404.html'), build404Html({ slug, title }));
+  }
+
+  write(join(appDir, 'src/main.tsx'), `import { render } from 'preact';
+import { App } from './app/App';
+import './styles/index.css';
+
+render(<App />, document.getElementById('app')!);
+`);
+
+  write(join(appDir, 'src/app/App.tsx'), `import { AppShell } from '../components/AppShell';
+
+export function App() {
+  return (
+    <AppShell>
+      <section class="card">
+        <h2>${title}</h2>
+        <p>Plantilla base generada correctamente. Implementa aquí la lógica de la miniapp.</p>
+      </section>
+    </AppShell>
+  );
+}
+`);
+
+  write(join(appDir, 'src/components/AppShell.tsx'), `import type { ComponentChildren } from 'preact';
+
+export function AppShell(props: { children: ComponentChildren }) {
+  return (
+    <div class="app-shell">
+      <header class="app-shell__header">
+        <h1>${title}</h1>
+        <p>${description}</p>
+      </header>
+      <main>{props.children}</main>
+    </div>
+  );
+}
+`);
+
+  write(join(appDir, 'src/hooks/useLocalStorage.ts'), `import { useEffect, useState } from 'preact/hooks';
+
+export function useLocalStorage<T>(key: string, initialValue: T) {
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? (JSON.parse(raw) as T) : initialValue;
+    } catch {
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue] as const;
+}
+`);
+
+  write(join(appDir, 'src/lib/constants.ts'), `export const APP_NAME = '${slug}';
+export const STORAGE_PREFIX = 'miniapps:${slug}:';
+`);
+  write(join(appDir, 'src/features/.gitkeep'), '');
+  write(join(appDir, 'src/styles/index.css'), `:root {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body { margin: 0; }
+.app-shell { max-width: 860px; margin: 0 auto; padding: 2rem; }
+.app-shell__header { margin-bottom: 1.5rem; }
+.card { background: white; border: 1px solid #cbd5e1; border-radius: 16px; padding: 1rem; }
+button { background: ${args.theme}; color: white; border: none; border-radius: 10px; padding: 0.75rem 1rem; }
+input, textarea { width: 100%; box-sizing: border-box; padding: 0.75rem; border-radius: 10px; border: 1px solid #cbd5e1; }
+`);
+}
+
+function runPostGeneration() {
+  execFileSync('node', ['scripts/generate-home-registry.mjs'], { stdio: 'inherit' });
+  execFileSync('node', ['scripts/validate-miniapps.mjs'], { stdio: 'inherit' });
+}
+
+function main() {
+  const args = parseArgs(process.argv);
+  ensureValidSlug(args.slug);
+
+  const appDir = resolve(process.cwd(), 'apps', args.slug);
+  if (existsSync(appDir)) throw new Error(`La app "${args.slug}" ya existe.`);
+
+  try {
+    generateFiles(args);
+    runPostGeneration();
+    console.log(`Miniapp "${args.slug}" creada correctamente.`);
+  } catch (error) {
+    rmSync(appDir, { recursive: true, force: true });
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
+}
+
+main();

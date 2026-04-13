@@ -1,0 +1,16 @@
+{
+  "name": "notes",
+  "title": "Notes",
+  "description": "Bloc de notas offline con persistencia local.",
+  "listed": true,
+  "pwa": true,
+  "router": false,
+  "themeColor": "#2563eb",
+  "backgroundColor": "#ffffff",
+  "icon": "default",
+  "tags": [
+    "notes",
+    "offline"
+  ],
+  "category": "utilities"
+}
