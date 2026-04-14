@@ -14,8 +14,8 @@ const entries = readAllAppConfigs()
     title: app.title,
     description: app.description,
     href: `${base}/${app.name}/`,
-    category: app.category || 'general',
-    tags: app.tags || []
+    ...(app.category ? { category: app.category } : {}),
+    ...(Array.isArray(app.tags) ? { tags: app.tags } : {})
   }));
 
 mkdirSync(dirname(HOME_REGISTRY_PATH), { recursive: true });

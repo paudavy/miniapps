@@ -3,23 +3,10 @@ import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-const RESERVED = new Set(['home', 'shared', 'config', 'tooling']);
-const DEFAULTS = {
-  title: '',
-  desc: '',
-  router: false,
-  pwa: true,
-  theme: '#2563eb',
-  background: '#ffffff',
-  category: 'utilities',
-  tags: [],
-  icon: 'default',
-  listed: true
-};
+import { RESERVED_APP_NAMES, SCAFFOLD_DEFAULTS, isValidSlug } from '../../../scripts/lib/miniapps.mjs';
 
 function parseArgs(argv) {
-  const args = { slug: argv[2], ...DEFAULTS };
+  const args = { slug: argv[2], ...SCAFFOLD_DEFAULTS };
 
   for (let index = 3; index < argv.length; index += 1) {
     const current = argv[index];
@@ -28,11 +15,11 @@ function parseArgs(argv) {
     else if (current === '--listed=false') args.listed = false;
     else if (current === '--title') args.title = argv[++index] || '';
     else if (current === '--desc') args.desc = argv[++index] || '';
-    else if (current === '--theme') args.theme = argv[++index] || DEFAULTS.theme;
-    else if (current === '--background') args.background = argv[++index] || DEFAULTS.background;
-    else if (current === '--category') args.category = argv[++index] || DEFAULTS.category;
+    else if (current === '--theme') args.theme = argv[++index] || SCAFFOLD_DEFAULTS.theme;
+    else if (current === '--background') args.background = argv[++index] || SCAFFOLD_DEFAULTS.background;
+    else if (current === '--category') args.category = argv[++index] || undefined;
     else if (current === '--tags') args.tags = (argv[++index] || '').split(',').map((value) => value.trim()).filter(Boolean);
-    else if (current === '--icon') args.icon = argv[++index] || DEFAULTS.icon;
+    else if (current === '--icon') args.icon = argv[++index] || undefined;
   }
 
   return args;
@@ -40,8 +27,8 @@ function parseArgs(argv) {
 
 function ensureValidSlug(slug) {
   if (!slug) throw new Error('Debes indicar un slug.');
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error('Slug inválido. Usa kebab-case.');
-  if (RESERVED.has(slug)) throw new Error('Slug reservado.');
+  if (!isValidSlug(slug)) throw new Error('Slug inválido. Usa kebab-case.');
+  if (RESERVED_APP_NAMES.has(slug)) throw new Error('Slug reservado.');
 }
 
 function titleFromSlug(slug) {
@@ -97,8 +84,10 @@ function buildIndexHtml({ title, theme, router }) {
 </html>`;
 }
 
-function buildViteConfig({ slug, pwa }) {
+function buildViteConfig({ pwa }) {
   const baseLine = `  return repo ? \`/\${repo}/\${appConfig.name}/\` : \`/\${appConfig.name}/\`;`;
+  const pwaImport = pwa ? `import { VitePWA } from 'vite-plugin-pwa';
+` : '';
   const pwaPlugin = pwa
     ? `,
     VitePWA({
@@ -122,8 +111,7 @@ function buildViteConfig({ slug, pwa }) {
 
   return `import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
-import { VitePWA } from 'vite-plugin-pwa';
-import appConfig from './app.config.json';
+${pwaImport}import appConfig from './app.config.json';
 
 function getPagesBase() {
   const repo = process.env.GITHUB_REPOSITORY?.split('/')?.[1] || process.env.VITE_REPO_NAME || '';
@@ -168,8 +156,7 @@ function generateFiles(args) {
   const title = args.title || titleFromSlug(slug);
   const description = args.desc || `${title} offline`;
   const appDir = join('apps', slug);
-
-  write(join(appDir, 'app.config.json'), JSON.stringify({
+  const appConfig = {
     name: slug,
     title,
     description,
@@ -178,10 +165,18 @@ function generateFiles(args) {
     router: args.router,
     themeColor: args.theme,
     backgroundColor: args.background,
-    icon: args.icon,
-    tags: args.tags,
-    category: args.category
-  }, null, 2));
+    ...(args.icon ? { icon: args.icon } : {}),
+    ...(args.tags?.length ? { tags: args.tags } : {}),
+    ...(args.category ? { category: args.category } : {})
+  };
+  const devDependencies = {
+    '@preact/preset-vite': '^2.10.1',
+    typescript: '^5.9.3',
+    vite: '^7.1.0',
+    ...(args.pwa ? { 'vite-plugin-pwa': '^1.0.0' } : {})
+  };
+
+  write(join(appDir, 'app.config.json'), JSON.stringify(appConfig, null, 2));
 
   write(join(appDir, 'package.json'), JSON.stringify({
     name: `@miniapps/${slug}`,
@@ -196,12 +191,7 @@ function generateFiles(args) {
     dependencies: {
       preact: '^10.26.4'
     },
-    devDependencies: {
-      '@preact/preset-vite': '^2.10.1',
-      typescript: '^5.9.3',
-      vite: '^7.1.0',
-      'vite-plugin-pwa': '^1.0.0'
-    }
+    devDependencies
   }, null, 2));
 
   write(join(appDir, 'tsconfig.json'), JSON.stringify({
@@ -211,9 +201,11 @@ function generateFiles(args) {
   }, null, 2));
 
   write(join(appDir, 'index.html'), buildIndexHtml({ title, theme: args.theme, router: args.router }));
-  write(join(appDir, 'vite.config.ts'), buildViteConfig({ slug, pwa: args.pwa }));
+  write(join(appDir, 'vite.config.ts'), buildViteConfig({ pwa: args.pwa }));
 
-  copyDefaultIcons(appDir);
+  if (args.pwa) {
+    copyDefaultIcons(appDir);
+  }
 
   if (args.router) {
     write(join(appDir, 'public/404.html'), build404Html({ slug, title }));
@@ -308,10 +300,17 @@ function main() {
 
   try {
     generateFiles(args);
+  } catch (error) {
+    rmSync(appDir, { recursive: true, force: true });
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
+
+  try {
     runPostGeneration();
     console.log(`Miniapp "${args.slug}" creada correctamente.`);
   } catch (error) {
-    rmSync(appDir, { recursive: true, force: true });
+    console.error(`Miniapp "${args.slug}" creada, pero falló la post-generación del repo.`);
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
   }

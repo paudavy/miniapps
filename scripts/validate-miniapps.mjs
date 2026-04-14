@@ -1,8 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-    REQUIRED_APP_FILES,
+    REQUIRED_APP_CONFIG_FIELDS,
     RESERVED_APP_NAMES,
+    getRequiredAppFiles,
     isValidSlug,
     readAllAppConfigs,
     readJson
@@ -29,7 +30,13 @@ for (const { appName, appDir, configPath, config } of readAllAppConfigs()) {
   }
   seen.add(config.name);
 
-  for (const relativeFile of REQUIRED_APP_FILES) {
+  for (const field of REQUIRED_APP_CONFIG_FIELDS) {
+    if (!(field in config)) {
+      errors.push(`Falta campo requerido ${field} en ${configPath}`);
+    }
+  }
+
+  for (const relativeFile of getRequiredAppFiles(config)) {
     const filePath = join(appDir, relativeFile);
     if (!existsSync(filePath)) {
       errors.push(`Falta ${filePath}`);

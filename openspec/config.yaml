@@ -1,0 +1,30 @@
+schema: spec-driven
+
+# Project context — usado por asistentes al generar artefactos.
+context: |
+  Tech stack: TypeScript, Preact, Vite, Node.js
+  Frameworks/libraries: Preact (UI), Vite (build), vite-plugin-pwa
+  Tooling: Node.js scripts under `scripts/`, scaffolding under `tooling/create-miniapp`
+  Conventions:
+    - Miniapps viven en `apps/*` con `app.config.json` como contrato de metadatos.
+    - El registro de apps se genera en `apps/home/src/generated/apps-registry.ts`.
+    - Usamos Conventional Commits para mensajes de commit.
+    - Tests usan Vitest cuando existen en un subproyecto.
+  Domain: Colección de miniapps PWA estáticas orientadas a despliegue en GitHub Pages.
+
+# Per-artifact rules — reglas que guían la creación de artefactos OpenSpec.
+rules:
+  proposal:
+    - Keep proposals under 500 words
+    - Always include a "Non-goals" section
+    - Include an "Evidencia" section with workspace-relative file paths when asserting implemented behavior
+  spec:
+    - Keep spec summaries concise (max 300 words)
+    - Include an "Evidencia" section listing file paths or generated assets that prove implementation
+    - Prefer linking to files under `apps/`, `scripts/` or `tooling/` for verification
+  tasks:
+    - Break tasks into chunks of max 2 hours
+    - Each task should be actionable and testable
+  change:
+    - When marking a change as implemented, include proof links and generated file paths
+

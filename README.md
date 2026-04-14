@@ -119,7 +119,7 @@ Opciones soportadas:
 
 - `--router`: Activa el modo SPA con enrutador (cliente). El generador establecerá `router: true` en `app.config.json` y creará `public/404.html` para que GitHub Pages reescriba rutas a la app. Usar cuando la app necesita rutas internas (p.ej. `/settings`).
 
-- `--no-pwa`: No genera la configuración PWA (no `manifest`, ni service worker ni copiado de iconos PWA). Útil si no quieres funcionalidades offline.
+- `--no-pwa`: Genera una miniapp sin huella PWA innecesaria. No añade `vite-plugin-pwa`, no copia iconos PWA y no genera manifest ni service worker.
 
 - `--theme <hex>`: Color primario en formato hexadecimal. Se aplica a `manifest.theme_color`, meta `theme-color` y variables CSS de la plantilla.
 	- Ejemplo: `--theme "#0f766e"`
@@ -127,13 +127,13 @@ Opciones soportadas:
 - `--background <hex>`: Color de fondo (hex) para `manifest.background_color` y estilos de pantalla de carga.
 	- Ejemplo: `--background "#ffffff"`
 
-- `--category <texto>`: Categoría libre que se guarda en `app.config.json` y sirve para agrupar/filtrar en el launcher `home`.
+- `--category <texto>`: Metadata opcional para clasificación futura. `home` no la necesita para funcionar.
 	- Ejemplo: `--category "productivity"`
 
-- `--tags <csv>`: Etiquetas separadas por comas. Se convierten en un array en la configuración y ayudan a búsqueda/filtrado en `home`. Los espacios alrededor de comas se recortan.
+- `--tags <csv>`: Metadata opcional separada por comas. Se guarda solo si se proporciona.
 	- Ejemplo: `--tags "habit,productivity,offline"`
 
-- `--icon <nombre>`: Nombre base del icono PWA a usar (el generador buscará los assets de iconos incluidos y los copiará/ajustará al `manifest`).
+- `--icon <nombre>`: Metadata opcional de icono. Solo se guarda si se proporciona.
 	- Ejemplo: `--icon "leaf"`
 
 - `--listed=false`: Indica que la app no debe aparecer listada en el launcher `home`. Por defecto las apps se listan; úsalo para apps privadas o en desarrollo.
@@ -157,10 +157,10 @@ Qué hace el generador:
 1. valida el slug
 2. crea `apps/<slug>`
 3. genera los archivos base de la app
-4. copia iconos PWA por defecto
+4. copia iconos PWA solo si la app es PWA
 5. crea `404.html` si la app usa router
 6. regenera el launcher `home`
-7. valida el resultado
+7. valida el resultado y, si falla por un problema global del repo, conserva la nueva app para revisión
 
 ## Validación
 
@@ -173,7 +173,7 @@ Comprueba:
 - nombres válidos
 - ficheros obligatorios
 - coherencia entre `app.config.json` y `package.json`
-- iconos requeridos
+- iconos requeridos solo para apps PWA
 - `404.html` si `router=true`
 - ausencia de lógica de redirect en apps sin router
 
@@ -262,4 +262,3 @@ git push
 ```
 
 ---
-

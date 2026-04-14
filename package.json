@@ -8,7 +8,8 @@
     "generate:home": "node scripts/generate-home-registry.mjs",
     "build:pages": "node scripts/build-pages.mjs",
     "preview:pages": "node scripts/preview-pages.mjs",
-    "check": "pnpm validate:miniapps"
+    "check": "pnpm validate:miniapps",
+    "test:scripts": "node --test scripts/tests/*.test.mjs"
   },
   "devDependencies": {
     "serve": "^14.2.4"

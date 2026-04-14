@@ -4,16 +4,38 @@ import { join } from 'node:path';
 export const APPS_DIR = join(process.cwd(), 'apps');
 export const HOME_DIR = join(APPS_DIR, 'home');
 export const HOME_REGISTRY_PATH = join(HOME_DIR, 'src', 'generated', 'apps-registry.ts');
-export const RESERVED_APP_NAMES = new Set(['home', 'shared', 'config', 'tooling']);
+export const RESERVED_APP_NAMES = new Set(['home', 'shared', 'config', 'tooling', 'scripts', 'docs']);
 export const REQUIRED_APP_FILES = [
   'package.json',
   'index.html',
   'vite.config.ts',
   'src/main.tsx',
-  'src/app/App.tsx',
-  'public/pwa-192.png',
-  'public/pwa-512.png'
+  'src/app/App.tsx'
 ];
+export const REQUIRED_PWA_FILES = ['public/pwa-192.png', 'public/pwa-512.png'];
+export const REQUIRED_APP_CONFIG_FIELDS = [
+  'name',
+  'title',
+  'description',
+  'listed',
+  'pwa',
+  'router',
+  'themeColor',
+  'backgroundColor'
+];
+export const OPTIONAL_APP_CONFIG_FIELDS = ['category', 'tags', 'icon'];
+export const SCAFFOLD_DEFAULTS = {
+  title: '',
+  desc: '',
+  router: false,
+  pwa: true,
+  theme: '#2563eb',
+  background: '#ffffff',
+  category: undefined,
+  tags: undefined,
+  icon: undefined,
+  listed: true
+};
 
 export function isValidSlug(value) {
   return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
@@ -31,6 +53,12 @@ export function getAppBase(appName) {
 export function getHomeBase() {
   const repo = getRepoName();
   return repo ? `/${repo}/` : '/';
+}
+
+export function getRequiredAppFiles(appConfig = {}) {
+  return appConfig.pwa === false
+    ? REQUIRED_APP_FILES
+    : [...REQUIRED_APP_FILES, ...REQUIRED_PWA_FILES];
 }
 
 export function readJson(filePath) {
