@@ -5,7 +5,7 @@ import appConfig from './app.config.json';
 
 function getPagesBase() {
   const repo = process.env.GITHUB_REPOSITORY?.split('/')[1] || process.env.VITE_REPO_NAME || '';
-  return repo ? `/${repo}/habit-tracker/` : '/habit-tracker/';
+  return repo ? `/${repo}/planning-board/` : '/planning-board/';
 }
 
 const base = getPagesBase();
