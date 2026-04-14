@@ -5,8 +5,8 @@
   "listed": false,
   "pwa": true,
   "router": false,
-  "themeColor": "#111827",
-  "backgroundColor": "#ffffff",
+  "themeColor": "#004F87",
+  "backgroundColor": "#FFFFFF",
   "icon": "default",
   "tags": [
     "launcher"

@@ -271,18 +271,28 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 export const STORAGE_PREFIX = 'miniapps:${slug}:';
 `);
   write(join(appDir, 'src/features/.gitkeep'), '');
-  write(join(appDir, 'src/styles/index.css'), `:root {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  color: #0f172a;
-  background: #f8fafc;
-}
+  write(join(appDir, 'src/styles/index.css'), `@import "../../../../styles/puedata-base.css";
 
-body { margin: 0; }
-.app-shell { max-width: 860px; margin: 0 auto; padding: 2rem; }
-.app-shell__header { margin-bottom: 1.5rem; }
-.card { background: white; border: 1px solid #cbd5e1; border-radius: 16px; padding: 1rem; }
-button { background: ${args.theme}; color: white; border: none; border-radius: 10px; padding: 0.75rem 1rem; }
-input, textarea { width: 100%; box-sizing: border-box; padding: 0.75rem; border-radius: 10px; border: 1px solid #cbd5e1; }
+:root {
+  --app-accent: ${args.theme};
+
+  --color-bg-page: var(--color-background-default);
+  --color-bg-surface: var(--color-background-default);
+  --color-text-primary: var(--color-brand-blue-900);
+  --color-text-secondary: var(--color-neutral-700);
+  --color-text-muted: var(--color-neutral-500);
+  --color-border-subtle: var(--color-neutral-100);
+  --color-border-default: var(--color-neutral-300);
+  --color-accent-primary: var(--app-accent);
+  --color-accent-hover: var(--app-accent);
+
+  --card-radius: var(--radius-md);
+  --card-padding: var(--space-6);
+  --button-height-md: 48px;
+  --button-radius: var(--radius-pill);
+  --input-height: 48px;
+  --input-radius: var(--radius-md);
+}
 `);
 }
 

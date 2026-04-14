@@ -12,10 +12,12 @@ before(() => {
   originalCwd = process.cwd();
   tempDir = mkdtempSync(join(tmpdir(), 'test-create-miniapp-'));
   mkdirSync(join(tempDir, 'apps'));
+  mkdirSync(join(tempDir, 'styles'));
   mkdirSync(join(tempDir, 'tooling', 'create-miniapp', 'src'), { recursive: true });
   mkdirSync(join(tempDir, 'tooling', 'create-miniapp', 'static'), { recursive: true });
   mkdirSync(join(tempDir, 'scripts', 'lib'), { recursive: true });
 
+  copyFileSync(join(originalCwd, 'styles', 'puedata-base.css'), join(tempDir, 'styles', 'puedata-base.css'));
   copyFileSync(join(originalCwd, 'tooling', 'create-miniapp', 'src', 'cli.js'), join(tempDir, 'tooling', 'create-miniapp', 'src', 'cli.js'));
   copyFileSync(join(originalCwd, 'tooling', 'create-miniapp', 'static', 'pwa-192.png'), join(tempDir, 'tooling', 'create-miniapp', 'static', 'pwa-192.png'));
   copyFileSync(join(originalCwd, 'tooling', 'create-miniapp', 'static', 'pwa-512.png'), join(tempDir, 'tooling', 'create-miniapp', 'static', 'pwa-512.png'));
@@ -93,13 +95,44 @@ test('scaffolds PWA app with plugin, icons, and manifest config', () => {
   const appConfig = JSON.parse(readFileSync(join(appDir, 'app.config.json'), 'utf8'));
   const packageJson = JSON.parse(readFileSync(join(appDir, 'package.json'), 'utf8'));
   const viteConfig = readFileSync(join(appDir, 'vite.config.ts'), 'utf8');
+  const indexHtml = readFileSync(join(appDir, 'index.html'), 'utf8');
+  const styles = readFileSync(join(appDir, 'src', 'styles', 'index.css'), 'utf8');
+  const sharedBaseStyles = readFileSync(join(tempDir, 'styles', 'puedata-base.css'), 'utf8');
 
   assert.strictEqual(appConfig.pwa, true);
+  assert.strictEqual(appConfig.themeColor, '#004F87');
+  assert.strictEqual(appConfig.backgroundColor, '#FFFFFF');
   assert.ok(existsSync(join(appDir, 'public', 'pwa-192.png')));
   assert.ok(existsSync(join(appDir, 'public', 'pwa-512.png')));
   assert.strictEqual(packageJson.devDependencies['vite-plugin-pwa'], '^1.0.0');
   assert.ok(viteConfig.includes('import { VitePWA } from \'vite-plugin-pwa\';'));
   assert.ok(viteConfig.includes('manifest: {'));
+  assert.ok(indexHtml.includes('<meta name="theme-color" content="#004F87" />'));
+  assert.ok(styles.includes('@import "../../../../styles/puedata-base.css";'));
+  assert.match(styles, /--color-bg-page:/);
+  assert.match(styles, /--color-bg-surface:/);
+  assert.match(styles, /--color-text-primary:/);
+  assert.match(styles, /--color-border-subtle:/);
+  assert.match(styles, /--color-accent-primary:/);
+  assert.match(sharedBaseStyles, /body\s*\{[^}]*background:\s*var\(--color-bg-page\)/s);
+  assert.match(sharedBaseStyles, /\.card\s*\{[^}]*background:\s*var\(--color-bg-surface\)/s);
+  assert.match(sharedBaseStyles, /button\s*\{[^}]*background:\s*var\(--color-accent-primary\)/s);
+});
+
+test('scaffolds app with custom theme override while keeping shared base import', () => {
+  const result = runCli(['custom-theme', '--theme', '#D10053']);
+  assert.strictEqual(result.exitCode, 0, result.output);
+
+  const appDir = join(tempDir, 'apps', 'custom-theme');
+  const appConfig = JSON.parse(readFileSync(join(appDir, 'app.config.json'), 'utf8'));
+  const indexHtml = readFileSync(join(appDir, 'index.html'), 'utf8');
+  const styles = readFileSync(join(appDir, 'src', 'styles', 'index.css'), 'utf8');
+
+  assert.strictEqual(appConfig.themeColor, '#D10053');
+  assert.ok(indexHtml.includes('<meta name="theme-color" content="#D10053" />'));
+  assert.ok(styles.includes('@import "../../../../styles/puedata-base.css";'));
+  assert.match(styles, /--app-accent:\s*#D10053/);
+  assert.match(styles, /--color-accent-primary:\s*var\(--app-accent\)/);
 });
 
 test('scaffolds router app with GitHub Pages redirect artifact', () => {

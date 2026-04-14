@@ -84,9 +84,12 @@ git --version
 
 ```bash
 pnpm install
+pnpm test:scripts
 pnpm validate:miniapps
 pnpm generate:home
 ```
+
+Esto deja validado el generador, la estructura del repo y el launcher `home`.
 
 ## Desarrollo local
 
@@ -121,10 +124,10 @@ Opciones soportadas:
 
 - `--no-pwa`: Genera una miniapp sin huella PWA innecesaria. No añade `vite-plugin-pwa`, no copia iconos PWA y no genera manifest ni service worker.
 
-- `--theme <hex>`: Color primario en formato hexadecimal. Se aplica a `manifest.theme_color`, meta `theme-color` y variables CSS de la plantilla.
+- `--theme <hex>`: Color primario en formato hexadecimal. Se aplica a `manifest.theme_color`, meta `theme-color` y variables CSS de acento de la plantilla. Por defecto usa `#004F87`.
 	- Ejemplo: `--theme "#0f766e"`
 
-- `--background <hex>`: Color de fondo (hex) para `manifest.background_color` y estilos de pantalla de carga.
+- `--background <hex>`: Color de fondo (hex) para `manifest.background_color` y estilos de pantalla de carga. Por defecto usa `#FFFFFF`.
 	- Ejemplo: `--background "#ffffff"`
 
 - `--category <texto>`: Metadata opcional para clasificación futura. `home` no la necesita para funcionar.
@@ -161,6 +164,27 @@ Qué hace el generador:
 5. crea `404.html` si la app usa router
 6. regenera el launcher `home`
 7. valida el resultado y, si falla por un problema global del repo, conserva la nueva app para revisión
+
+La plantilla base generada comparte estilos desde `styles/puedata-base.css`. La miniapp nueva solo redefine las variables necesarias para su acento visual y ajustes locales.
+
+## Proceso recomendado para crear una miniapp
+
+```bash
+pnpm new:miniapp <slug> --title "..." --desc "..."
+pnpm test:scripts
+pnpm validate:miniapps
+pnpm --filter @miniapps/<slug> dev
+pnpm build:pages
+```
+
+Checklist sugerido:
+
+1. Crear la app con `pnpm new:miniapp`.
+2. Revisar `apps/<slug>/app.config.json`.
+3. Levantar la app en local con `pnpm --filter @miniapps/<slug> dev`.
+4. Ejecutar `pnpm test:scripts` y `pnpm validate:miniapps`.
+5. Generar `dist-pages/` con `pnpm build:pages`.
+6. Hacer commit y push.
 
 ## Validación
 
@@ -211,7 +235,10 @@ pnpm preview:pages
 2. Sube el contenido a la rama `main`.
 3. Ve a **Settings > Pages**.
 4. En **Build and deployment**, selecciona **GitHub Actions**.
-5. Haz push a `main`.
+5. Verifica que la pestaña **Actions** esté habilitada para el repositorio.
+6. Haz push a `main`.
+
+El despliegue incluido vive en `.github/workflows/deploy-pages.yml` y no requiere secretos manuales para el caso estándar de GitHub Pages.
 
 El workflow incluido hace esto:
 
@@ -222,6 +249,34 @@ El workflow incluido hace esto:
 5. build de Pages
 6. subida de `dist-pages/`
 7. despliegue
+
+Comandos equivalentes que conviene probar en local antes del primer push:
+
+```bash
+pnpm install
+pnpm test:scripts
+pnpm validate:miniapps
+pnpm build:pages
+```
+
+## Primer despliegue recomendado
+
+```bash
+pnpm install
+pnpm test:scripts
+pnpm validate:miniapps
+pnpm build:pages
+git add .
+git commit -m "Initial commit"
+git push -u origin main
+```
+
+Después del push:
+
+1. Abre **Actions** y espera a que termine `Deploy GitHub Pages`.
+2. Entra en **Settings > Pages** y confirma la URL publicada.
+3. Verifica `home` en `https://<usuario>.github.io/<repo>/`.
+4. Verifica al menos una miniapp en su subruta.
 
 ## Puntos técnicos importantes
 
@@ -245,12 +300,13 @@ Revisa `public/404.html` y que `router` esté activado en `app.config.json`.
 Revisa `listed`, ejecuta `pnpm generate:home` y vuelve a validar.
 
 ### Falla GitHub Actions
-Comprueba que `pnpm validate:miniapps` y `pnpm build:pages` funcionan en local.
+Comprueba que `pnpm test:scripts`, `pnpm validate:miniapps` y `pnpm build:pages` funcionan en local. Revisa también que Pages esté configurado con **GitHub Actions** y que `.github/workflows/deploy-pages.yml` no esté deshabilitado.
 
 ## Ejemplo de flujo completo
 
 ```bash
 pnpm new:miniapp weekly-planner --title "Weekly Planner" --desc "Planificador semanal offline" --theme "#7c3aed"
+pnpm test:scripts
 pnpm validate:miniapps
 pnpm generate:home
 pnpm --filter @miniapps/weekly-planner dev

@@ -104,8 +104,8 @@ Opciones soportadas:
 - `--desc <texto>`
 - `--router`
 - `--no-pwa`
-- `--theme <hex>`
-- `--background <hex>`
+- `--theme <hex>` (`#004F87` por defecto)
+- `--background <hex>` (`#FFFFFF` por defecto)
 - `--category <texto>`
 - `--tags <csv>`
 - `--icon <nombre>`

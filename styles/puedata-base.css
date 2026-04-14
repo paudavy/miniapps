@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700&display=swap');
+
+:root {
+  --font-primary: Manrope, Inter, sans-serif;
+  --font-alternate: Sora, Inter, sans-serif;
+  --font-ui: Inter, sans-serif;
+
+  --color-brand-blue-900: #004F87;
+  --color-brand-blue-800: #0A5B95;
+  --color-brand-blue-700: #1E5B92;
+  --color-brand-pink-600: #D10053;
+  --color-brand-pink-500: #E5005A;
+  --color-neutral-white: #FFFFFF;
+  --color-neutral-25: #F8F8F8;
+  --color-neutral-50: #F3F4F6;
+  --color-neutral-100: #E8EAED;
+  --color-neutral-300: #C8CDD3;
+  --color-neutral-500: #8A9099;
+  --color-neutral-700: #4A4F57;
+  --color-neutral-900: #1B1F26;
+  --color-background-soft: #F7F7F5;
+  --color-background-default: #FFFFFF;
+
+  --app-accent: var(--color-brand-blue-900);
+
+  --color-bg-page: var(--color-background-default);
+  --color-bg-surface: var(--color-background-default);
+  --color-text-primary: var(--color-brand-blue-900);
+  --color-text-secondary: var(--color-neutral-700);
+  --color-text-muted: var(--color-neutral-500);
+  --color-border-subtle: var(--color-neutral-100);
+  --color-border-default: var(--color-neutral-300);
+  --color-accent-primary: var(--app-accent);
+  --color-accent-hover: var(--color-brand-blue-800);
+
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  --shadow-subtle: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  --card-radius: var(--radius-md);
+  --card-padding: var(--space-6);
+  --button-height-md: 48px;
+  --button-radius: var(--radius-pill);
+  --input-height: 48px;
+  --input-radius: var(--radius-md);
+
+  color: var(--color-text-primary);
+  background: var(--color-bg-page);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-primary);
+  color: var(--color-text-primary);
+  background: var(--color-bg-page);
+}
+
+.app-shell {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--space-10) clamp(20px, 4vw, 48px);
+}
+
+.app-shell__header {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+}
+
+.app-shell__header h1,
+.app-shell__header p,
+.card h2,
+.card p {
+  margin: 0;
+}
+
+.app-shell__header h1,
+.card h2 {
+  font-family: var(--font-alternate);
+  color: var(--color-text-primary);
+}
+
+.app-shell__header p,
+.card p {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.card {
+  display: grid;
+  gap: var(--space-3);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-subtle);
+}
+
+button {
+  min-height: var(--button-height-md);
+  padding: 0 var(--space-6);
+  border: none;
+  border-radius: var(--button-radius);
+  background: var(--color-accent-primary);
+  color: var(--color-neutral-white);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+input,
+textarea {
+  width: 100%;
+  min-height: var(--input-height);
+  padding: 0 var(--space-4);
+  border-radius: var(--input-radius);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-ui);
+}
+
+textarea {
+  padding-block: var(--space-3);
+}
