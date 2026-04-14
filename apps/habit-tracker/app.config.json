@@ -1,0 +1,16 @@
+{
+  "name": "habit-tracker",
+  "title": "Habit Tracker",
+  "description": "Seguimiento de hábitos",
+  "listed": true,
+  "pwa": true,
+  "router": true,
+  "themeColor": "#0f766e",
+  "backgroundColor": "#ffffff",
+  "icon": "leaf",
+  "tags": [
+    "habit",
+    "productivity"
+  ],
+  "category": "utilities"
+}

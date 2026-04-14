@@ -11,6 +11,17 @@ export const appsRegistry = [
     ]
   },
   {
+    "name": "habit-tracker",
+    "title": "Habit Tracker",
+    "description": "Seguimiento de hábitos",
+    "href": "/miniapps/habit-tracker/",
+    "category": "utilities",
+    "tags": [
+      "habit",
+      "productivity"
+    ]
+  },
+  {
     "name": "notes",
     "title": "Notes",
     "description": "Bloc de notas offline con persistencia local.",

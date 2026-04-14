@@ -22,6 +22,27 @@ La solución está pensada para reducir trabajo manual. El repo incluye un launc
 - build y previsualización del artefacto final de Pages
 - workflow de GitHub Actions para despliegue
 
+## Crear el repositorio en GitHub
+
+### Desde la interfaz web
+
+1. Ve a GitHub.
+2. Pulsa **New repository**.
+3. Asigna un nombre, por ejemplo `miniapps`.
+4. Márcalo como público si quieres el caso más simple con GitHub Pages.
+5. Crea el repositorio.
+
+### Vincular el repositorio local
+
+```bash
+git init
+git remote add origin https://github.com/<usuario>/<repo>.git
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git push -u origin main
+```
+
 ## Estructura
 
 ```text
@@ -239,4 +260,6 @@ git add .
 git commit -m "Add weekly-planner miniapp"
 git push
 ```
+
+---
 

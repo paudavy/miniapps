@@ -1,0 +1,12 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+body { margin: 0; }
+.app-shell { max-width: 860px; margin: 0 auto; padding: 2rem; }
+.app-shell__header { margin-bottom: 1.5rem; }
+.card { background: white; border: 1px solid #cbd5e1; border-radius: 16px; padding: 1rem; }
+button { background: #0f766e; color: white; border: none; border-radius: 10px; padding: 0.75rem 1rem; }
+input, textarea { width: 100%; box-sizing: border-box; padding: 0.75rem; border-radius: 10px; border: 1px solid #cbd5e1; }
