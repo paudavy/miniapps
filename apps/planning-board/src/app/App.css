@@ -1,0 +1,32 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.app__topbar {
+  flex: 0 0 var(--topbar-height);
+}
+
+.app__toolbar {
+  flex: 0 0 var(--toolbar-height);
+}
+
+.app__scheduler {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.app__statsbar { flex: 0 0 var(--statsbar-height); }
+
+@media (max-width: 768px) {
+  .app__toolbar {
+    flex: 0 0 auto;
+  }
+
+  .app__statsbar {
+    flex: 0 0 auto;
+  }
+}

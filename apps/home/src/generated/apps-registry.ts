@@ -31,5 +31,13 @@ export const appsRegistry = [
       "notes",
       "offline"
     ]
+  },
+  {
+    "name": "planning-board",
+    "title": "ResPlanner",
+    "description": "Resource planning board",
+    "href": "/miniapps/planning-board/",
+    "category": "utilities",
+    "tags": []
   }
 ] as const;

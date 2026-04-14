@@ -1,0 +1,50 @@
+import { h } from 'preact';
+import { ProfileCreateForm } from './ProfileCreateForm';
+import { ViewToggle } from './ViewToggle';
+import { ExportButton } from './ExportButton';
+import { ZoomControl } from './ZoomControl';
+import './Toolbar.css';
+import { activeProfileId } from '../state/signals';
+import { createAssignment } from '../state/actions';
+
+const PlusIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="3" y="3" width="18" height="18" rx="3"/>
+    <line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+  </svg>
+);
+
+export function Toolbar(): h.JSX.Element {
+  const hasActiveProfile = activeProfileId.value !== null;
+
+  return (
+    <div className="toolbar">
+      <div className="toolbar__group toolbar__group--profile">
+        <ProfileCreateForm />
+      </div>
+      <div className="toolbar__sep" />
+      <div className="toolbar__group toolbar__group--assign">
+        <button
+          className="toolbar__btn toolbar__btn--primary"
+          disabled={!hasActiveProfile}
+          onClick={() => activeProfileId.value && createAssignment(activeProfileId.value)}
+        >
+          <PlusIcon /> Add assignment
+        </button>
+        {!hasActiveProfile && (
+          <span className="toolbar__hint">Select a profile row to add an assignment</span>
+        )}
+      </div>
+      <div className="toolbar__sep" />
+      <div className="toolbar__group toolbar__group--controls">
+        <ViewToggle />
+        <ZoomControl />
+      </div>
+      <div className="toolbar__sep" />
+      <div className="toolbar__spacer" />
+      <div className="toolbar__group toolbar__group--export">
+        <ExportButton />
+      </div>
+    </div>
+  );
+}

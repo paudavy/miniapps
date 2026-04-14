@@ -1,0 +1,13 @@
+{
+  "name": "planning-board",
+  "title": "ResPlanner",
+  "description": "Resource planning board",
+  "listed": true,
+  "pwa": true,
+  "router": true,
+  "themeColor": "#2093df",
+  "backgroundColor": "#ffffff",
+  "icon": "default",
+  "tags": [],
+  "category": "utilities"
+}
