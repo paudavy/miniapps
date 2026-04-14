@@ -5,12 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.6",
@@ -19,23 +15,14 @@
     "d3-selection": "^3.0.0",
     "dexie": "^4.4.2",
     "nanoid": "^5.1.7",
-    "preact": "^10.29.1"
+    "preact": "^10.26.4"
   },
   "devDependencies": {
-    "@preact/preset-vite": "^2.10.5",
-    "@testing-library/preact": "^3.2.4",
+    "@preact/preset-vite": "^2.10.1",
     "@types/d3-drag": "^3.0.7",
     "@types/d3-selection": "^3.0.11",
-    "@typescript-eslint/eslint-plugin": "^8.58.0",
-    "@typescript-eslint/parser": "^8.58.0",
-    "eslint": "^10.2.0",
-    "fake-indexeddb": "^6.2.5",
-    "globals": "^17.4.0",
-    "jsdom": "^29.0.1",
-    "ts-unused-exports": "^11.0.1",
-    "typescript": "^6.0.2",
-    "vite": "^7.3.1",
-    "vite-plugin-pwa": "^1.2.0",
-    "vitest": "^4.1.2"
+    "typescript": "^5.9.3",
+    "vite": "^7.1.0",
+    "vite-plugin-pwa": "^1.0.0"
   }
 }

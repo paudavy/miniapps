@@ -1,20 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Planning Board</title>
-    <meta name="theme-color" content="#ffffff" />
+    <title>ResPlanner</title>
+    <meta name="theme-color" content="#004F87" />
   </head>
   <body>
     <div id="app"></div>
-    <script>
-      const qs = new URLSearchParams(location.search);
-      const redirect = qs.get('redirect');
-      if (redirect) {
-        history.replaceState(null, '', decodeURIComponent(redirect));
-      }
-    </script>
-    <script type="module" src="./src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

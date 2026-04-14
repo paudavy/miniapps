@@ -1,12 +1,12 @@
 import { h } from 'preact';
 import { useEffect } from 'preact/hooks';
-import { TopBar } from '../ui/TopBar';
-import { Toolbar } from '../ui/Toolbar';
-import { SchedulerPane } from '../ui/SchedulerPane';
-import { ContextMenu } from '../ui/ContextMenu';
-import { HoverPopover } from '../ui/HoverPopover';
-import { StatsBar } from '../ui/StatsBar';
-import { clearTransientUi, loadAll } from '../state/actions';
+import { TopBar } from '../features/board/ui/TopBar';
+import { Toolbar } from '../features/board/ui/Toolbar';
+import { SchedulerPane } from '../features/board/ui/SchedulerPane';
+import { ContextMenu } from '../features/board/ui/ContextMenu';
+import { HoverPopover } from '../features/board/ui/HoverPopover';
+import { StatsBar } from '../features/board/ui/StatsBar';
+import { clearTransientUi, loadAll } from '../features/board/state/actions';
 import { registerSW } from './registerSW';
 import './App.css';
 

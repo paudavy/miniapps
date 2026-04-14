@@ -13,17 +13,6 @@ export const appsRegistry = [
     ]
   },
   {
-    "name": "habit-tracker",
-    "title": "Habit Tracker",
-    "description": "Seguimiento de hábitos",
-    "href": "/habit-tracker/",
-    "category": "utilities",
-    "tags": [
-      "habit",
-      "productivity"
-    ]
-  },
-  {
     "name": "notes",
     "title": "Notes",
     "description": "Bloc de notas offline con persistencia local.",
@@ -39,7 +28,6 @@ export const appsRegistry = [
     "title": "ResPlanner",
     "description": "Resource planning board",
     "href": "/planning-board/",
-    "category": "utilities",
-    "tags": []
+    "category": "utilities"
   }
 ] as const;

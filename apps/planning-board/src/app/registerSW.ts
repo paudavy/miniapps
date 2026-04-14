@@ -1,5 +1,5 @@
-import { installPrompt, isInstalled } from '../state/signals';
-import type { BeforeInstallPromptEvent } from '../state/signals';
+import { installPrompt, isInstalled } from '../features/board/state/signals';
+import type { BeforeInstallPromptEvent } from '../features/board/state/signals';
 
 export function registerSW(): void {
   window.addEventListener('beforeinstallprompt', (e: Event) => {

@@ -1,12 +1,12 @@
-import { profiles, assignments, viewMode, slotCount, slotWidth } from '../state/signals';
-import { headerLabel } from '../domain/slots';
-import { detectOverloads } from '../domain/overload';
-import { computeAssignmentLanes, rowHeightForLaneCount } from '../domain/stacking';
-import type { Assignment, Profile, ViewMode } from '../domain/types';
+import { profiles, assignments, viewMode, slotCount, slotWidth } from '../features/board/state/signals';
+import { headerLabel } from '../features/board/domain/slots';
+import { detectOverloads } from '../features/board/domain/overload';
+import { computeAssignmentLanes, rowHeightForLaneCount } from '../features/board/domain/stacking';
+import type { Assignment, Profile, ViewMode } from '../features/board/domain/types';
 
 const OVERLOAD_BG = 'rgba(220, 53, 69, 0.08)';
 const OVERLOAD_BORDER = '#dc3545';
-const BAR_COLOR = '#0d6efd';
+const BAR_COLOR = '#004F87';
 const GRID_COLOR = '#e9ecef';
 const MUTED_COLOR = '#6c757d';
 const HEADER_BG = '#f8f9fa';
@@ -123,13 +123,13 @@ export function exportToPNG(): void {
     ctx.fillStyle = '#212529';
     ctx.font = '13px sans-serif';
     ctx.textAlign = 'left';
-    const name = row.profile.name.length > 20 ? row.profile.name.slice(0, 20) + '…' : row.profile.name;
+    const name = row.profile.name.length > 20 ? row.profile.name.slice(0, 20) + '\u2026' : row.profile.name;
     ctx.fillText(name, 8, y + row.rowHeight / 2 + 4);
 
     if (row.overloadedSlots.size > 0) {
       ctx.fillStyle = OVERLOAD_BORDER;
       ctx.font = '11px sans-serif';
-      ctx.fillText(`⚠ ${row.overloadedSlots.size} slots`, 108, y + row.rowHeight / 2 + 4);
+      ctx.fillText(`\u26a0 ${row.overloadedSlots.size} slots`, 108, y + row.rowHeight / 2 + 4);
     }
 
     for (let i = 0; i < snapshot.slotCount; i++) {
@@ -181,7 +181,7 @@ export function exportToPNG(): void {
       ctx.fillStyle = '#ffffff';
       ctx.font = '12px sans-serif';
       ctx.textAlign = 'left';
-      const text = `${assignment.task} · ${assignment.dedicationPct}%`;
+      const text = `${assignment.task} \u00b7 ${assignment.dedicationPct}%`;
       const maxTextW = barW - 12;
       const measured = ctx.measureText(text);
       const truncated = measured.width > maxTextW ? ctxTruncate(ctx, text, maxTextW) : text;
@@ -197,7 +197,7 @@ export function exportToPNG(): void {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `planning-board-${ts}.png`;
+    a.download = `resplanner-${ts}.png`;
     a.click();
     URL.revokeObjectURL(url);
   });
@@ -205,8 +205,8 @@ export function exportToPNG(): void {
 
 function ctxTruncate(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
   let result = text;
-  while (ctx.measureText(result + '…').width > maxWidth && result.length > 0) {
+  while (ctx.measureText(result + '\u2026').width > maxWidth && result.length > 0) {
     result = result.slice(0, -1);
   }
-  return result + '…';
+  return result + '\u2026';
 }
