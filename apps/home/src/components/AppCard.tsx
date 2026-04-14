@@ -4,7 +4,7 @@ type AppEntry = {
   description: string;
   href: string;
   category?: string;
-  tags?: string[];
+  tags?: readonly string[];
 };
 
 export function AppCard({ app }: { app: AppEntry }) {

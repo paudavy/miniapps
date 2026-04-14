@@ -1,9 +1,11 @@
+// GENERATED — no editar a mano
+// Ejecuta scripts/generate-home-registry.mjs para regenerar
 export const appsRegistry = [
   {
     "name": "focus-timer",
     "title": "Focus Timer",
     "description": "Temporizador pomodoro simple offline.",
-    "href": "/miniapps/focus-timer/",
+    "href": "/focus-timer/",
     "category": "utilities",
     "tags": [
       "timer",
@@ -14,7 +16,7 @@ export const appsRegistry = [
     "name": "habit-tracker",
     "title": "Habit Tracker",
     "description": "Seguimiento de hábitos",
-    "href": "/miniapps/habit-tracker/",
+    "href": "/habit-tracker/",
     "category": "utilities",
     "tags": [
       "habit",
@@ -25,7 +27,7 @@ export const appsRegistry = [
     "name": "notes",
     "title": "Notes",
     "description": "Bloc de notas offline con persistencia local.",
-    "href": "/miniapps/notes/",
+    "href": "/notes/",
     "category": "utilities",
     "tags": [
       "notes",
@@ -36,7 +38,7 @@ export const appsRegistry = [
     "name": "planning-board",
     "title": "ResPlanner",
     "description": "Resource planning board",
-    "href": "/miniapps/planning-board/",
+    "href": "/planning-board/",
     "category": "utilities",
     "tags": []
   }

@@ -1,13 +1,9 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { HOME_REGISTRY_PATH, readAllAppConfigs } from './lib/miniapps.mjs';
+import { getRepoName, HOME_REGISTRY_PATH, readAllAppConfigs } from './lib/miniapps.mjs';
 
-function getRepoBase() {
-  const repo = process.env.GITHUB_REPOSITORY?.split('/')[1] || process.env.VITE_REPO_NAME || '';
-  return repo ? `/${repo}` : '.';
-}
-
-const base = getRepoBase();
+const repoName = getRepoName();
+const base = repoName ? `/${repoName}` : '';
 
 const entries = readAllAppConfigs()
   .map(({ config }) => config)
@@ -23,5 +19,9 @@ const entries = readAllAppConfigs()
   }));
 
 mkdirSync(dirname(HOME_REGISTRY_PATH), { recursive: true });
-writeFileSync(HOME_REGISTRY_PATH, `export const appsRegistry = ${JSON.stringify(entries, null, 2)} as const;\n`, 'utf8');
+writeFileSync(
+  HOME_REGISTRY_PATH,
+  `// GENERATED — no editar a mano\n// Ejecuta scripts/generate-home-registry.mjs para regenerar\nexport const appsRegistry = ${JSON.stringify(entries, null, 2)} as const;\n`,
+  'utf8'
+);
 console.log(`Generated ${HOME_REGISTRY_PATH}`);

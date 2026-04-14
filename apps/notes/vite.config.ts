@@ -1,11 +1,11 @@
-import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
+import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import appConfig from './app.config.json';
 
 function getPagesBase() {
   const repo = process.env.GITHUB_REPOSITORY?.split('/')[1] || process.env.VITE_REPO_NAME || '';
-  return repo ? `/${repo}/notes/` : '/notes/';
+  return repo ? `/${repo}/${appConfig.name}/` : `/${appConfig.name}/`;
 }
 
 const base = getPagesBase();

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
+import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const RESERVED = new Set(['home', 'shared', 'config', 'tooling']);
 const DEFAULTS = {
@@ -56,8 +57,17 @@ function write(relativePath, content) {
 function copyDefaultIcons(appDir) {
   const publicDir = join(appDir, 'public');
   mkdirSync(publicDir, { recursive: true });
-  copyFileSync(resolve(process.cwd(), 'assets/pwa/pwa-192.png'), join(publicDir, 'pwa-192.png'));
-  copyFileSync(resolve(process.cwd(), 'assets/pwa/pwa-512.png'), join(publicDir, 'pwa-512.png'));
+  const candidates = [
+    resolve(process.cwd(), 'assets/pwa'),
+    join(dirname(fileURLToPath(import.meta.url)), '..', 'static')
+  ];
+  const src = candidates.find((p) => existsSync(p));
+  if (!src) {
+    console.warn('No default PWA icons found; skipping icon copy.');
+    return;
+  }
+  copyFileSync(join(src, 'pwa-192.png'), join(publicDir, 'pwa-192.png'));
+  copyFileSync(join(src, 'pwa-512.png'), join(publicDir, 'pwa-512.png'));
 }
 
 function buildIndexHtml({ title, theme, router }) {
@@ -88,7 +98,7 @@ function buildIndexHtml({ title, theme, router }) {
 }
 
 function buildViteConfig({ slug, pwa }) {
-  const baseLine = `  return repo ? \`/\${repo}/${slug}/\` : '/${slug}/';`;
+  const baseLine = `  return repo ? \`/\${repo}/\${appConfig.name}/\` : \`/\${appConfig.name}/\`;`;
   const pwaPlugin = pwa
     ? `,
     VitePWA({
@@ -110,27 +120,25 @@ function buildViteConfig({ slug, pwa }) {
     })`
     : '';
 
-  return [
-    "import { defineConfig } from 'vite';",
-    "import preact from '@preact/preset-vite';",
-    "import { VitePWA } from 'vite-plugin-pwa';",
-    "import appConfig from './app.config.json';",
-    '',
-    'function getPagesBase() {',
-    "  const repo = process.env.GITHUB_REPOSITORY?.split('/')[1] || process.env.VITE_REPO_NAME || '';",
-    baseLine,
-    '}',
-    '',
-    'const base = getPagesBase();',
-    '',
-    'export default defineConfig({',
-    '  base,',
-    '  plugins: [',
-    `    preact()${pwaPlugin}`,
-    '  ]',
-    '});',
-    ''
-  ].join('\n');
+  return `import { defineConfig } from 'vite';
+import preact from '@preact/preset-vite';
+import { VitePWA } from 'vite-plugin-pwa';
+import appConfig from './app.config.json';
+
+function getPagesBase() {
+  const repo = process.env.GITHUB_REPOSITORY?.split('/')?.[1] || process.env.VITE_REPO_NAME || '';
+  ${baseLine}
+}
+
+const base = getPagesBase();
+
+export default defineConfig({
+  base,
+  plugins: [
+    preact()${pwaPlugin}
+  ]
+});
+`;
 }
 
 function build404Html({ slug, title }) {
@@ -140,11 +148,15 @@ function build404Html({ slug, title }) {
     <meta charset="utf-8" />
     <title>${title} - redirect</title>
     <script>
-      const repo = location.pathname.split('/').filter(Boolean)[0] || '';
-      const base = repo ? '/' + repo + '/${slug}/' : '/${slug}/';
-      const path = location.pathname.replace(base, '');
-      const query = location.search || '';
-      location.replace(base + '?redirect=' + encodeURIComponent('/' + path + query + location.hash));
+      (function(){
+        const slug = '${slug}';
+        const marker = '/' + slug + '/';
+        const idx = location.pathname.lastIndexOf(marker);
+        const base = idx !== -1 ? location.pathname.slice(0, idx + marker.length) : marker;
+        const path = idx !== -1 ? location.pathname.slice(idx + marker.length) : location.pathname.replace(marker, '');
+        const query = location.search || '';
+        location.replace(base + '?redirect=' + encodeURIComponent('/' + path + query + location.hash));
+      })();
     </script>
   </head>
   <body></body>

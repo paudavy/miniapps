@@ -1,11 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  REQUIRED_APP_FILES,
-  RESERVED_APP_NAMES,
-  isValidSlug,
-  readAllAppConfigs,
-  readJson
+    REQUIRED_APP_FILES,
+    RESERVED_APP_NAMES,
+    isValidSlug,
+    readAllAppConfigs,
+    readJson
 } from './lib/miniapps.mjs';
 
 const errors = [];
@@ -50,8 +50,21 @@ for (const { appName, appDir, configPath, config } of readAllAppConfigs()) {
   }
 
   const indexHtml = readFileSync(join(appDir, 'index.html'), 'utf8');
-  if (!config.router && indexHtml.includes("qs.get('redirect')")) {
-    errors.push(`La app ${config.name} no usa router y no debería incluir restauración de redirect en index.html`);
+  if (!config.router) {
+    // Buscar el contenido de scripts inline y detectar restauración de redirect de forma más robusta
+    const scriptRegex = /<script[^>]*>([\s\S]*?)<\/script>/gi;
+    let match;
+    let found = false;
+    while ((match = scriptRegex.exec(indexHtml)) !== null) {
+      const scriptContent = match[1];
+      if (/qs\.get\(\s*['"]redirect['"]\s*\)/.test(scriptContent)) {
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      errors.push(`La app ${config.name} no usa router y no debería incluir restauración de redirect en index.html`);
+    }
   }
 }
 

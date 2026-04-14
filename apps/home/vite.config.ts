@@ -9,6 +9,7 @@ function getHomeBase() {
 }
 
 const base = getHomeBase();
+const escapedBase = base.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
 
 export default defineConfig({
   base,
@@ -33,7 +34,7 @@ export default defineConfig({
       // Evitar que el service worker del launcher capture navegación a subrutas de otras miniapps
       // y devuelva el index del launcher. Añadimos una denylist para rutas como `/<repo>/<app>/...`.
       workbox: {
-        navigateFallbackDenylist: [new RegExp(`^${base}[^/]+/`)]
+        navigateFallbackDenylist: [new RegExp(`^${escapedBase}[^/]+/`)]
       }
     })
   ]
