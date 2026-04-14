@@ -1,14 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Planning Board</title>
-    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      const qs = new URLSearchParams(location.search);
+      const redirect = qs.get('redirect');
+      if (redirect) {
+        history.replaceState(null, '', decodeURIComponent(redirect));
+      }
+    </script>
+    <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>
