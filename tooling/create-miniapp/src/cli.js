@@ -271,7 +271,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 export const STORAGE_PREFIX = 'miniapps:${slug}:';
 `);
   write(join(appDir, 'src/features/.gitkeep'), '');
-  write(join(appDir, 'src/styles/index.css'), `@import "../../../../styles/puedata-base.css";
+  write(join(appDir, 'src/styles/index.css'), `@import "../../../../styles/base.css";
 
 :root {
   --app-accent: ${args.theme};

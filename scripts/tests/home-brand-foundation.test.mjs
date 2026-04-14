@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 import { readFileSync } from 'node:fs';
 
-test('home config uses PUEDATA manifest defaults', () => {
+test('home config uses BASE manifest defaults', () => {
   const appConfig = JSON.parse(readFileSync('apps/home/app.config.json', 'utf8'));
 
   assert.strictEqual(appConfig.themeColor, '#004F87');
@@ -12,7 +12,7 @@ test('home config uses PUEDATA manifest defaults', () => {
 test('home stylesheet exposes semantic tokens and uses soft page background', () => {
   const styles = readFileSync('apps/home/src/styles/index.css', 'utf8');
 
-  assert.ok(styles.includes('@import "../../../../styles/puedata-base.css";'));
+  assert.ok(styles.includes('@import "../../../../styles/base.css";'));
   assert.match(styles, /--color-bg-page:\s*var\(--color-background-soft\)/);
   assert.match(styles, /--color-bg-surface:\s*var\(--color-background-default\)/);
   assert.match(styles, /--color-text-primary:/);

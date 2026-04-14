@@ -165,7 +165,7 @@ Qué hace el generador:
 6. regenera el launcher `home`
 7. valida el resultado y, si falla por un problema global del repo, conserva la nueva app para revisión
 
-La plantilla base generada comparte estilos desde `styles/puedata-base.css`. La miniapp nueva solo redefine las variables necesarias para su acento visual y ajustes locales.
+La plantilla base generada comparte estilos desde `styles/base.css`. La miniapp nueva solo redefine las variables necesarias para su acento visual y ajustes locales.
 
 ## Proceso recomendado para crear una miniapp
 

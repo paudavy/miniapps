@@ -17,7 +17,7 @@ before(() => {
   mkdirSync(join(tempDir, 'tooling', 'create-miniapp', 'static'), { recursive: true });
   mkdirSync(join(tempDir, 'scripts', 'lib'), { recursive: true });
 
-  copyFileSync(join(originalCwd, 'styles', 'puedata-base.css'), join(tempDir, 'styles', 'puedata-base.css'));
+  copyFileSync(join(originalCwd, 'styles', 'base.css'), join(tempDir, 'styles', 'base.css'));
   copyFileSync(join(originalCwd, 'tooling', 'create-miniapp', 'src', 'cli.js'), join(tempDir, 'tooling', 'create-miniapp', 'src', 'cli.js'));
   copyFileSync(join(originalCwd, 'tooling', 'create-miniapp', 'static', 'pwa-192.png'), join(tempDir, 'tooling', 'create-miniapp', 'static', 'pwa-192.png'));
   copyFileSync(join(originalCwd, 'tooling', 'create-miniapp', 'static', 'pwa-512.png'), join(tempDir, 'tooling', 'create-miniapp', 'static', 'pwa-512.png'));
@@ -97,7 +97,7 @@ test('scaffolds PWA app with plugin, icons, and manifest config', () => {
   const viteConfig = readFileSync(join(appDir, 'vite.config.ts'), 'utf8');
   const indexHtml = readFileSync(join(appDir, 'index.html'), 'utf8');
   const styles = readFileSync(join(appDir, 'src', 'styles', 'index.css'), 'utf8');
-  const sharedBaseStyles = readFileSync(join(tempDir, 'styles', 'puedata-base.css'), 'utf8');
+  const sharedBaseStyles = readFileSync(join(tempDir, 'styles', 'base.css'), 'utf8');
 
   assert.strictEqual(appConfig.pwa, true);
   assert.strictEqual(appConfig.themeColor, '#004F87');
@@ -108,7 +108,7 @@ test('scaffolds PWA app with plugin, icons, and manifest config', () => {
   assert.ok(viteConfig.includes('import { VitePWA } from \'vite-plugin-pwa\';'));
   assert.ok(viteConfig.includes('manifest: {'));
   assert.ok(indexHtml.includes('<meta name="theme-color" content="#004F87" />'));
-  assert.ok(styles.includes('@import "../../../../styles/puedata-base.css";'));
+  assert.ok(styles.includes('@import "../../../../styles/base.css";'));
   assert.match(styles, /--color-bg-page:/);
   assert.match(styles, /--color-bg-surface:/);
   assert.match(styles, /--color-text-primary:/);
@@ -130,7 +130,7 @@ test('scaffolds app with custom theme override while keeping shared base import'
 
   assert.strictEqual(appConfig.themeColor, '#D10053');
   assert.ok(indexHtml.includes('<meta name="theme-color" content="#D10053" />'));
-  assert.ok(styles.includes('@import "../../../../styles/puedata-base.css";'));
+  assert.ok(styles.includes('@import "../../../../styles/base.css";'));
   assert.match(styles, /--app-accent:\s*#D10053/);
   assert.match(styles, /--color-accent-primary:\s*var\(--app-accent\)/);
 });
