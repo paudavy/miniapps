@@ -94,7 +94,3 @@ h6 {
   background: var(--board-border-2, #cbd0d8);
   border-radius: 3px;
 }
-
-.card {
-  overflow: auto;
-}

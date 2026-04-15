@@ -81,6 +81,38 @@
   --transition-normal: 220ms ease;
 }
 
+/* ── Reset ─────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
 /* ── Base body ─────────────────────────────── */
 body {
   font-family: var(--font-body);
@@ -129,6 +161,7 @@ body {
   border-radius: var(--card-radius);
   padding: var(--card-padding);
   box-shadow: var(--shadow-subtle);
+  overflow: auto;
 }
 
 .card h2 {
@@ -313,12 +346,19 @@ textarea {
   resize: vertical;
 }
 
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  overflow-wrap: break-word;
+/* Thin scrollbars — track is invisible, thumb uses board border token */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--board-border-2, #cbd0d8) transparent;
+}
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--board-border-2, #cbd0d8);
+  border-radius: 3px;
 }
