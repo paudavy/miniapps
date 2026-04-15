@@ -151,6 +151,150 @@ function build404Html({ slug, title }) {
 </html>`;
 }
 
+function buildAppTsx({ title, pwa }) {
+  const imports = pwa
+    ? `import { useEffect } from 'preact/hooks';
+import { registerSW } from './registerSW';
+`
+    : '';
+  const setup = pwa
+    ? `  useEffect(() => {
+    registerSW();
+  }, []);
+
+`
+    : '';
+
+  return `${imports}import { AppShell } from '../components/AppShell';
+
+export function App() {
+${setup}  return (
+    <AppShell>
+      <section class="card">
+        <h2>${title}</h2>
+        <p>Plantilla base generada correctamente. Implementa aquí la lógica de la miniapp.</p>
+      </section>
+    </AppShell>
+  );
+}
+`;
+}
+
+function buildAppShellTsx({ title, description, pwa }) {
+  const importLine = pwa ? `import { InstallButton } from './InstallButton';
+` : '';
+  const installButton = pwa ? '\n        <InstallButton />' : '';
+
+  return `import type { ComponentChildren } from 'preact';
+${importLine}
+export function AppShell(props: { children: ComponentChildren }) {
+  return (
+    <div class="app-shell">
+      <header class="app-shell__header">
+        <div>
+          <h1>${title}</h1>
+          <p>${description}</p>
+        </div>${installButton}
+      </header>
+      <main>{props.children}</main>
+    </div>
+  );
+}
+`;
+}
+
+function buildRegisterSWTs() {
+  return `interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
+interface InstallState {
+  canInstall: boolean;
+  isInstalled: boolean;
+}
+
+let installPrompt: BeforeInstallPromptEvent | null = null;
+let installed = false;
+let hasRegistered = false;
+const listeners = new Set<() => void>();
+
+function notify() {
+  for (const listener of listeners) listener();
+}
+
+export function registerSW(): void {
+  if (hasRegistered) return;
+  hasRegistered = true;
+
+  window.addEventListener('beforeinstallprompt', (event: Event) => {
+    event.preventDefault();
+    installPrompt = event as BeforeInstallPromptEvent;
+    notify();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installed = true;
+    installPrompt = null;
+    notify();
+  });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch((error) => {
+        console.error('[registerSW] service worker registration failed', error);
+      });
+    }, { once: true });
+  }
+}
+
+export function getInstallState(): InstallState {
+  return {
+    canInstall: installPrompt !== null,
+    isInstalled: installed
+  };
+}
+
+export function subscribeInstallState(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+export function triggerInstall(): void {
+  const prompt = installPrompt;
+  if (!prompt) return;
+
+  prompt.prompt();
+  void prompt.userChoice.then(() => {
+    installPrompt = null;
+    notify();
+  });
+}
+`;
+}
+
+function buildInstallButtonTsx() {
+  return `import { useEffect, useState } from 'preact/hooks';
+import { getInstallState, subscribeInstallState, triggerInstall } from '../app/registerSW';
+
+export function InstallButton() {
+  const [installState, setInstallState] = useState(() => getInstallState());
+
+  useEffect(() => subscribeInstallState(() => {
+    setInstallState(getInstallState());
+  }), []);
+
+  if (!installState.canInstall || installState.isInstalled) return null;
+
+  return (
+    <button type="button" onClick={triggerInstall}>
+      Install App
+    </button>
+  );
+}
+`;
+}
+
 function generateFiles(args) {
   const slug = args.slug;
   const title = args.title || titleFromSlug(slug);
@@ -218,34 +362,14 @@ import './styles/index.css';
 render(<App />, document.getElementById('app')!);
 `);
 
-  write(join(appDir, 'src/app/App.tsx'), `import { AppShell } from '../components/AppShell';
+  write(join(appDir, 'src/app/App.tsx'), buildAppTsx({ title, pwa: args.pwa }));
 
-export function App() {
-  return (
-    <AppShell>
-      <section class="card">
-        <h2>${title}</h2>
-        <p>Plantilla base generada correctamente. Implementa aquí la lógica de la miniapp.</p>
-      </section>
-    </AppShell>
-  );
-}
-`);
+  write(join(appDir, 'src/components/AppShell.tsx'), buildAppShellTsx({ title, description, pwa: args.pwa }));
 
-  write(join(appDir, 'src/components/AppShell.tsx'), `import type { ComponentChildren } from 'preact';
-
-export function AppShell(props: { children: ComponentChildren }) {
-  return (
-    <div class="app-shell">
-      <header class="app-shell__header">
-        <h1>${title}</h1>
-        <p>${description}</p>
-      </header>
-      <main>{props.children}</main>
-    </div>
-  );
-}
-`);
+  if (args.pwa) {
+    write(join(appDir, 'src/app/registerSW.ts'), buildRegisterSWTs());
+    write(join(appDir, 'src/components/InstallButton.tsx'), buildInstallButtonTsx());
+  }
 
   write(join(appDir, 'src/hooks/useLocalStorage.ts'), `import { useEffect, useState } from 'preact/hooks';
 
@@ -271,11 +395,14 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 export const STORAGE_PREFIX = 'miniapps:${slug}:';
 `);
   write(join(appDir, 'src/features/.gitkeep'), '');
-  write(join(appDir, 'src/styles/index.css'), `@import "../../../../styles/base.css";
+  write(join(appDir, 'src/styles/index.css'), `/* Shared base identity (imported) */
+@import "../../../../styles/base.css";
 
 :root {
+  /* App accent token (customizable) */
   --app-accent: ${args.theme};
 
+  /* App semantic tokens (local mapping) */
   --color-bg-page: var(--color-background-default);
   --color-bg-surface: var(--color-background-default);
   --color-text-primary: var(--color-brand-blue-900);

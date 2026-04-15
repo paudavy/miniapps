@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
+import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import appConfig from './app.config.json';
 
@@ -32,4 +32,9 @@ export default defineConfig({
       },
     }),
   ],
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+  },
 });

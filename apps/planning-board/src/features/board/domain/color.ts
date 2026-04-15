@@ -1,12 +1,13 @@
 export const PROFILE_COLOR_PALETTE = [
-  '#004F87',
-  '#34d399',
-  '#fbbf24',
-  '#f472b6',
-  '#a78bfa',
-  '#22d3ee',
-  '#fb923c',
-  '#4ade80',
+  // Paleta intermedia: mantiene suavidad pero más saturada
+  '#5B8FD6', /* softened blue (readable with black text) */
+  '#66D4A3', /* softened mint */
+  '#FFDF70', /* warm pale yellow */
+  '#FF9CCF', /* soft pink */
+  '#BFA8FF', /* lavender */
+  '#66E0F0', /* soft cyan */
+  '#FFB86B', /* soft orange/peach */
+  '#7EE19A', /* soft light green */
 ];
 
 export function getProfileColor(index: number): string {

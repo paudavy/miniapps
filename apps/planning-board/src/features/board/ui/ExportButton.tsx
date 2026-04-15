@@ -12,7 +12,7 @@ const DownloadIcon = () => (
 
 export function ExportButton(): h.JSX.Element {
   return (
-    <button className="export-btn" onClick={exportToPNG}>
+    <button className="toolbar__btn toolbar__btn--primary" onClick={exportToPNG}>
       <DownloadIcon /> Export PNG
     </button>
   );

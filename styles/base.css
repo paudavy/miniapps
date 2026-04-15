@@ -1,80 +1,99 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700&display=swap');
 
+/* ── Brand palette ─────────────────────────── */
 :root {
-  --font-primary: Manrope, Inter, sans-serif;
-  --font-alternate: Sora, Inter, sans-serif;
-  --font-ui: Inter, sans-serif;
+  --color-brand-blue-900: #004f87;
+  --color-brand-blue-800: #0a5b95;
+  --color-brand-blue-700: #1e6bad;
+  --color-brand-pink-600: #d10053;
+  --color-brand-pink-500: #e5005a;
 
-  --color-brand-blue-900: #004F87;
-  --color-brand-blue-800: #0A5B95;
-  --color-brand-blue-700: #1E5B92;
-  --color-brand-pink-600: #D10053;
-  --color-brand-pink-500: #E5005A;
-  --color-neutral-white: #FFFFFF;
-  --color-neutral-25: #F8F8F8;
-  --color-neutral-50: #F3F4F6;
-  --color-neutral-100: #E8EAED;
-  --color-neutral-300: #C8CDD3;
-  --color-neutral-500: #8A9099;
-  --color-neutral-700: #4A4F57;
-  --color-neutral-900: #1B1F26;
-  --color-background-soft: #F7F7F5;
-  --color-background-default: #FFFFFF;
+  --color-neutral-white: #ffffff;
+  --color-neutral-25: #f9fafb;
+  --color-neutral-50: #f3f4f6;
+  --color-neutral-100: #e8eaed;
+  --color-neutral-200: #d2d6db;
+  --color-neutral-300: #c8cdd3;
+  --color-neutral-500: #8a9099;
+  --color-neutral-700: #4a4f57;
+  --color-neutral-900: #1b1f26;
+  --color-background-soft: #f7f7f5;
+  --color-background-default: #ffffff;
 
-  --app-accent: var(--color-brand-blue-900);
 
+  /* ── Semantic page tokens ─────────────────── */
   --color-bg-page: var(--color-background-default);
   --color-bg-surface: var(--color-background-default);
+  --color-bg-subtle: var(--color-background-soft);
+
   --color-text-primary: var(--color-brand-blue-900);
   --color-text-secondary: var(--color-neutral-700);
   --color-text-muted: var(--color-neutral-500);
+
   --color-border-subtle: var(--color-neutral-100);
   --color-border-default: var(--color-neutral-300);
-  --color-accent-primary: var(--app-accent);
-  --color-accent-hover: var(--color-brand-blue-800);
 
+  --color-accent-primary: var(--color-brand-blue-900);
+  --color-accent-hover: var(--color-brand-blue-800);
+  --color-accent-active: var(--color-brand-blue-700);
+
+  /* ── Typography ───────────────────────────── */
+  --font-display: 'Sora', system-ui, sans-serif; /* headings, hero */
+  --font-body: 'Manrope', system-ui, sans-serif; /* body copy, UI  */
+  --font-primary: 'Manrope', 'Inter', sans-serif;
+  --font-alternate: 'Sora', 'Inter', sans-serif;
+  --font-ui: 'Inter', sans-serif;
+  
+  /* ── Spacing scale ────────────────────────── */
+  --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
+  --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
   --space-10: 40px;
   --space-12: 48px;
+  --space-16: 64px;
 
+  /* ── Radii ────────────────────────────────── */
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-pill: 999px;
 
-  --shadow-subtle: 0 4px 16px rgba(0, 0, 0, 0.06);
-  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.08);
+  /* ── Shadows ──────────────────────────────── */
+  --shadow-subtle:
+    0 1px 4px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-soft:
+    0 4px 12px rgba(0, 0, 0, 0.08), 0 12px 32px rgba(0, 0, 0, 0.06);
+  --shadow-lifted:
+    0 8px 24px rgba(0, 79, 135, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
 
+  /* ── Component tokens ─────────────────────── */
+  --button-height: 44px;
+  --input-height: 44px;
   --card-radius: var(--radius-md);
   --card-padding: var(--space-6);
-  --button-height-md: 48px;
-  --button-radius: var(--radius-pill);
-  --input-height: 48px;
-  --input-radius: var(--radius-md);
 
-  color: var(--color-text-primary);
-  background: var(--color-bg-page);
+  /* ── Transitions ──────────────────────────── */
+  --transition-fast: 120ms ease;
+  --transition-normal: 220ms ease;
 }
 
-* {
-  box-sizing: border-box;
-}
-
+/* ── Base body ─────────────────────────────── */
 body {
-  margin: 0;
-  font-family: var(--font-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
   color: var(--color-text-primary);
   background: var(--color-bg-page);
 }
 
+/* ── Page shell ────────────────────────────── */
 .app-shell {
-  max-width: 860px;
+  /* max-width: 1080px; */
   margin: 0 auto;
-  padding: var(--space-10) clamp(20px, 4vw, 48px);
+  padding: var(--space-10) clamp(var(--space-4), 4vw, var(--space-12));
 }
 
 .app-shell__header {
@@ -83,28 +102,26 @@ body {
   margin-bottom: var(--space-8);
 }
 
-.app-shell__header h1,
-.app-shell__header p,
-.card h2,
-.card p {
-  margin: 0;
-}
-
-.app-shell__header h1,
-.card h2 {
-  font-family: var(--font-alternate);
+.app-shell__header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  font-weight: 700;
   color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
-.app-shell__header p,
-.card p {
+.app-shell__header p {
   color: var(--color-text-secondary);
-  line-height: 1.6;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  max-width: 56ch;
 }
 
+/* ── Card ──────────────────────────────────── */
 .card {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--card-radius);
@@ -112,30 +129,85 @@ body {
   box-shadow: var(--shadow-subtle);
 }
 
-button {
-  min-height: var(--button-height-md);
-  padding: 0 var(--space-6);
-  border: none;
-  border-radius: var(--button-radius);
-  background: var(--color-accent-primary);
-  color: var(--color-neutral-white);
-  font-family: var(--font-ui);
-  font-weight: 600;
-  cursor: pointer;
+.card h2 {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
 }
 
+.card p {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* ── Button ────────────────────────────────── */
+button.btn,
+a.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--button-height);
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-primary);
+  color: var(--color-neutral-white);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+button.btn:hover,
+a.btn:hover {
+  background: var(--color-accent-hover);
+  box-shadow: 0 4px 12px rgba(0, 79, 135, 0.25);
+  transform: translateY(-1px);
+}
+
+button.btn:active,
+a.btn:active {
+  background: var(--color-accent-active);
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ── Input / Textarea ──────────────────────── */
 input,
-textarea {
+textarea,
+select {
   width: 100%;
-  min-height: var(--input-height);
-  padding: 0 var(--space-4);
-  border-radius: var(--input-radius);
+  /* min-height: var(--input-height); */
+  /* padding: 0 var(--space-4); */
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border-default);
   background: var(--color-bg-surface);
   color: var(--color-text-primary);
-  font-family: var(--font-ui);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 3px rgba(0, 79, 135, 0.12);
 }
 
 textarea {
   padding-block: var(--space-3);
+  min-height: 100px;
+  resize: vertical;
 }

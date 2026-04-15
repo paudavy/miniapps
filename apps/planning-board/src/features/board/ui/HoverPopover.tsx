@@ -29,7 +29,7 @@ export function HoverPopover(): h.JSX.Element | null {
   return (
     <div ref={ref} className="hover-popover hover-popover--visible" style={{ left: '0px', top: '0px', zIndex: 50 }}>
       <div className="hover-popover__header">
-        <span className="hover-popover__dot" style={{ background: profile?.color ?? 'var(--color-accent)' }} />
+        <span className="hover-popover__dot" style={{ background: profile?.color ?? 'var(--board-accent)' }} />
         <div className="hover-popover__title">{assignment.task}</div>
       </div>
       <div className="hover-popover__row">
@@ -45,7 +45,7 @@ export function HoverPopover(): h.JSX.Element | null {
         <span className="hover-popover__val">{profile?.name ?? 'Unknown'}</span>
       </div>
       <div className="hover-popover__track">
-        <div className="hover-popover__fill" style={{ width: `${assignment.dedicationPct}%`, background: profile?.color ?? 'var(--color-accent)' }} />
+        <div className="hover-popover__fill" style={{ width: `${assignment.dedicationPct}%`, background: profile?.color ?? 'var(--board-accent)' }} />
       </div>
     </div>
   );

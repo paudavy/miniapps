@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Validate miniapps
+      - name: Validate miniapps (error mode)
         run: pnpm validate:miniapps
 
       - name: Build pages artifact

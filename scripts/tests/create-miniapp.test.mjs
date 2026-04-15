@@ -1,9 +1,9 @@
-import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { after, before, beforeEach, test } from 'node:test';
 
 let tempDir;
 let originalCwd;
@@ -61,6 +61,56 @@ function createInvalidApp(name) {
   writeFileSync(join(appDir, 'app.config.json'), JSON.stringify({ name, title: name, description: 'broken', listed: true }), 'utf8');
 }
 
+function transpileGeneratedRegisterSW(source) {
+  return source
+    .replace(/interface BeforeInstallPromptEvent[\s\S]*?}\n\n/, '')
+    .replace(/interface InstallState[\s\S]*?}\n\n/, '')
+    .replace('let installPrompt: BeforeInstallPromptEvent | null = null;', 'let installPrompt = null;')
+    .replace('const listeners = new Set<() => void>();', 'const listeners = new Set();')
+    .replace('export function registerSW(): void {', 'function registerSW() {')
+    .replace('window.addEventListener(\'beforeinstallprompt\', (event: Event) => {', 'window.addEventListener(\'beforeinstallprompt\', (event) => {')
+    .replaceAll(' as BeforeInstallPromptEvent', '')
+    .replace('export function getInstallState(): InstallState {', 'function getInstallState() {')
+    .replace('export function subscribeInstallState(listener: () => void): () => void {', 'function subscribeInstallState(listener) {')
+    .replace('export function triggerInstall(): void {', 'function triggerInstall() {');
+}
+
+function createGeneratedRegisterSWRuntime(source) {
+  const listeners = new Map();
+  const registrations = [];
+  const window = {
+    addEventListener(type, listener) {
+      const current = listeners.get(type) || [];
+      current.push(listener);
+      listeners.set(type, current);
+    }
+  };
+  const navigator = {
+    serviceWorker: {
+      register(path) {
+        registrations.push(path);
+        return Promise.resolve();
+      }
+    }
+  };
+  const runtime = new Function(
+    'window',
+    'navigator',
+    'console',
+    `${transpileGeneratedRegisterSW(source)}\nreturn { registerSW, getInstallState, subscribeInstallState, triggerInstall };`,
+  )(window, navigator, console);
+
+  return {
+    ...runtime,
+    registrations,
+    dispatch(type, event = {}) {
+      for (const listener of listeners.get(type) || []) {
+        listener(event);
+      }
+    }
+  };
+}
+
 test('rejects reserved slug from shared repo contract', () => {
   const result = runCli(['docs']);
   assert.notStrictEqual(result.exitCode, 0);
@@ -76,6 +126,8 @@ test('scaffolds non-PWA app without unnecessary PWA footprint', () => {
   const appConfig = JSON.parse(readFileSync(join(appDir, 'app.config.json'), 'utf8'));
   const packageJson = JSON.parse(readFileSync(join(appDir, 'package.json'), 'utf8'));
   const viteConfig = readFileSync(join(appDir, 'vite.config.ts'), 'utf8');
+  const appTsx = readFileSync(join(appDir, 'src', 'app', 'App.tsx'), 'utf8');
+  const appShellTsx = readFileSync(join(appDir, 'src', 'components', 'AppShell.tsx'), 'utf8');
 
   assert.strictEqual(appConfig.pwa, false);
   assert.ok(!('category' in appConfig));
@@ -85,6 +137,11 @@ test('scaffolds non-PWA app without unnecessary PWA footprint', () => {
   assert.ok(!existsSync(join(appDir, 'public', 'pwa-512.png')));
   assert.ok(!('vite-plugin-pwa' in packageJson.devDependencies));
   assert.ok(!viteConfig.includes('VitePWA'));
+  assert.ok(!existsSync(join(appDir, 'src', 'app', 'registerSW.ts')));
+  assert.ok(!existsSync(join(appDir, 'src', 'components', 'InstallButton.tsx')));
+  assert.ok(!appTsx.includes('registerSW'));
+  assert.ok(!appTsx.includes('useEffect'));
+  assert.ok(!appShellTsx.includes('InstallButton'));
 });
 
 test('scaffolds PWA app with plugin, icons, and manifest config', () => {
@@ -98,6 +155,10 @@ test('scaffolds PWA app with plugin, icons, and manifest config', () => {
   const indexHtml = readFileSync(join(appDir, 'index.html'), 'utf8');
   const styles = readFileSync(join(appDir, 'src', 'styles', 'index.css'), 'utf8');
   const sharedBaseStyles = readFileSync(join(tempDir, 'styles', 'base.css'), 'utf8');
+  const appTsx = readFileSync(join(appDir, 'src', 'app', 'App.tsx'), 'utf8');
+  const appShellTsx = readFileSync(join(appDir, 'src', 'components', 'AppShell.tsx'), 'utf8');
+  const registerSW = readFileSync(join(appDir, 'src', 'app', 'registerSW.ts'), 'utf8');
+  const installButton = readFileSync(join(appDir, 'src', 'components', 'InstallButton.tsx'), 'utf8');
 
   assert.strictEqual(appConfig.pwa, true);
   assert.strictEqual(appConfig.themeColor, '#004F87');
@@ -109,6 +170,9 @@ test('scaffolds PWA app with plugin, icons, and manifest config', () => {
   assert.ok(viteConfig.includes('manifest: {'));
   assert.ok(indexHtml.includes('<meta name="theme-color" content="#004F87" />'));
   assert.ok(styles.includes('@import "../../../../styles/base.css";'));
+  assert.ok(styles.includes('/* Shared base identity (imported) */'));
+  assert.ok(styles.includes('/* App semantic tokens (local mapping) */'));
+  assert.ok(styles.includes('/* App accent token (customizable) */'));
   assert.match(styles, /--color-bg-page:/);
   assert.match(styles, /--color-bg-surface:/);
   assert.match(styles, /--color-text-primary:/);
@@ -116,7 +180,105 @@ test('scaffolds PWA app with plugin, icons, and manifest config', () => {
   assert.match(styles, /--color-accent-primary:/);
   assert.match(sharedBaseStyles, /body\s*\{[^}]*background:\s*var\(--color-bg-page\)/s);
   assert.match(sharedBaseStyles, /\.card\s*\{[^}]*background:\s*var\(--color-bg-surface\)/s);
-  assert.match(sharedBaseStyles, /button\s*\{[^}]*background:\s*var\(--color-accent-primary\)/s);
+  assert.match(sharedBaseStyles, /button\.btn,[^]*background:\s*var\(--color-accent-primary\)/s);
+  assert.ok(appTsx.includes("import { useEffect } from 'preact/hooks';"));
+  assert.ok(appTsx.includes("import { registerSW } from './registerSW';"));
+  assert.ok(appTsx.includes('useEffect(() => {'));
+  assert.ok(appTsx.includes('registerSW();'));
+  assert.ok(appShellTsx.includes("import { InstallButton } from './InstallButton';"));
+  assert.ok(appShellTsx.includes('<InstallButton />'));
+  assert.ok(registerSW.includes('beforeinstallprompt'));
+  assert.ok(registerSW.includes('appinstalled'));
+  assert.ok(registerSW.includes('export function registerSW(): void'));
+  assert.ok(installButton.includes('export function InstallButton()'));
+  assert.ok(installButton.includes('triggerInstall'));
+});
+
+test('generated PWA install state starts unavailable and becomes available after beforeinstallprompt', () => {
+  const result = runCli(['default-pwa']);
+  assert.strictEqual(result.exitCode, 0, result.output);
+
+  const appDir = join(tempDir, 'apps', 'default-pwa');
+  const registerSW = readFileSync(join(appDir, 'src', 'app', 'registerSW.ts'), 'utf8');
+  const installButton = readFileSync(join(appDir, 'src', 'components', 'InstallButton.tsx'), 'utf8');
+  const runtime = createGeneratedRegisterSWRuntime(registerSW);
+  let notifications = 0;
+
+  runtime.registerSW();
+  const unsubscribe = runtime.subscribeInstallState(() => {
+    notifications += 1;
+  });
+
+  assert.deepStrictEqual(runtime.getInstallState(), { canInstall: false, isInstalled: false });
+  assert.ok(installButton.includes('if (!installState.canInstall || installState.isInstalled) return null;'));
+
+  const promptEvent = {
+    prevented: false,
+    preventDefault() {
+      this.prevented = true;
+    },
+    prompt() {
+      return Promise.resolve();
+    },
+    userChoice: Promise.resolve({ outcome: 'accepted' })
+  };
+
+  runtime.dispatch('beforeinstallprompt', promptEvent);
+
+  assert.strictEqual(promptEvent.prevented, true);
+  assert.deepStrictEqual(runtime.getInstallState(), { canInstall: true, isInstalled: false });
+  assert.strictEqual(notifications, 1);
+
+  unsubscribe();
+});
+
+test('generated PWA install state hides install after appinstalled and registers the service worker on load', async () => {
+  const result = runCli(['default-pwa']);
+  assert.strictEqual(result.exitCode, 0, result.output);
+
+  const appDir = join(tempDir, 'apps', 'default-pwa');
+  const registerSW = readFileSync(join(appDir, 'src', 'app', 'registerSW.ts'), 'utf8');
+  const installButton = readFileSync(join(appDir, 'src', 'components', 'InstallButton.tsx'), 'utf8');
+  const runtime = createGeneratedRegisterSWRuntime(registerSW);
+  let promptCalls = 0;
+  let resolveUserChoice;
+
+  runtime.registerSW();
+  runtime.dispatch('beforeinstallprompt', {
+    preventDefault() {},
+    prompt() {
+      promptCalls += 1;
+      return Promise.resolve();
+    },
+    userChoice: new Promise((resolve) => {
+      resolveUserChoice = resolve;
+    })
+  });
+
+  runtime.triggerInstall();
+  assert.strictEqual(promptCalls, 1);
+
+  resolveUserChoice({ outcome: 'accepted' });
+  await Promise.resolve();
+
+  assert.deepStrictEqual(runtime.getInstallState(), { canInstall: false, isInstalled: false });
+
+  runtime.dispatch('beforeinstallprompt', {
+    preventDefault() {},
+    prompt() {
+      return Promise.resolve();
+    },
+    userChoice: Promise.resolve({ outcome: 'accepted' })
+  });
+  runtime.dispatch('appinstalled');
+
+  assert.deepStrictEqual(runtime.getInstallState(), { canInstall: false, isInstalled: true });
+  assert.ok(installButton.includes('if (!installState.canInstall || installState.isInstalled) return null;'));
+
+  runtime.dispatch('load');
+  await Promise.resolve();
+
+  assert.deepStrictEqual(runtime.registrations, ['/sw.js']);
 });
 
 test('scaffolds app with custom theme override while keeping shared base import', () => {
@@ -131,6 +293,9 @@ test('scaffolds app with custom theme override while keeping shared base import'
   assert.strictEqual(appConfig.themeColor, '#D10053');
   assert.ok(indexHtml.includes('<meta name="theme-color" content="#D10053" />'));
   assert.ok(styles.includes('@import "../../../../styles/base.css";'));
+  assert.ok(styles.includes('/* Shared base identity (imported) */'));
+  assert.ok(styles.includes('/* App semantic tokens (local mapping) */'));
+  assert.ok(styles.includes('/* App accent token (customizable) */'));
   assert.match(styles, /--app-accent:\s*#D10053/);
   assert.match(styles, /--color-accent-primary:\s*var\(--app-accent\)/);
 });

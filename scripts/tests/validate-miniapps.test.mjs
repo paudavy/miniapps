@@ -1,9 +1,9 @@
-import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import { execSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, rmSync, mkdirSync, readFileSync, copyFileSync, readdirSync, existsSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { after, before, beforeEach, test } from 'node:test';
 
 let tempDir;
 let originalCwd;
@@ -13,8 +13,10 @@ before(function() {
   tempDir = mkdtempSync(join(tmpdir(), 'test-validate-'));
   mkdirSync(join(tempDir, 'apps'));
   mkdirSync(join(tempDir, 'scripts', 'lib'), { recursive: true });
+  mkdirSync(join(tempDir, 'styles'), { recursive: true });
   copyFileSync(join(originalCwd, 'scripts', 'lib', 'miniapps.mjs'), join(tempDir, 'scripts', 'lib', 'miniapps.mjs'));
   copyFileSync(join(originalCwd, 'scripts', 'validate-miniapps.mjs'), join(tempDir, 'scripts', 'validate-miniapps.mjs'));
+  copyFileSync(join(originalCwd, 'styles', 'base.css'), join(tempDir, 'styles', 'base.css'));
   process.chdir(tempDir);
 });
 
@@ -73,6 +75,11 @@ function createMinimalApp(name, overrides = {}) {
   writeFileSync(join(appDir, 'vite.config.ts'), 'export default {}', 'utf8');
   writeFileSync(join(appDir, 'src', 'main.tsx'), 'import {}', 'utf8');
   writeFileSync(join(appDir, 'src', 'app', 'App.tsx'), 'export const App = () => null;', 'utf8');
+  writeFileSync(
+    join(appDir, 'src', 'styles', 'index.css'),
+    '@import "../../../../styles/base.css";\n\n:root {\n  --app-accent: #2563eb;\n  --color-bg-page: var(--color-background-default);\n  --color-bg-surface: var(--color-background-default);\n  --color-text-primary: var(--color-brand-blue-900);\n  --color-text-secondary: var(--color-neutral-700);\n  --color-border-subtle: var(--color-neutral-100);\n  --color-accent-primary: var(--app-accent);\n}\n',
+    'utf8'
+  );
   writeFileSync(join(appDir, 'public', 'pwa-192.png'), 'fake', 'utf8');
   writeFileSync(join(appDir, 'public', 'pwa-512.png'), 'fake', 'utf8');
 }
@@ -182,4 +189,40 @@ test('app no PWA válida no requiere iconos', () => {
 
   const result = runValidate();
   assert.strictEqual(result.exitCode, 0, result.output);
+});
+
+test('falla si src/styles/index.css no importa styles/base.css', () => {
+  createMinimalApp('style-missing-base');
+  const stylePath = join(tempDir, 'apps', 'style-missing-base', 'src', 'styles', 'index.css');
+  writeFileSync(stylePath, ':root { --app-accent: #2563eb; }\n', 'utf8');
+
+  const result = runValidate();
+  assert.notStrictEqual(result.exitCode, 0);
+  assert.match(result.output, /base\.css/i);
+});
+
+test('falla si hay var(--token) sin definición ni fallback', () => {
+  createMinimalApp('style-unresolved-token');
+  const cssPath = join(tempDir, 'apps', 'style-unresolved-token', 'src', 'styles', 'index.css');
+  writeFileSync(
+    cssPath,
+    '@import "../../../../styles/base.css";\n\n.bad { color: var(--token-no-definido); }\n',
+    'utf8'
+  );
+
+  const result = runValidate();
+  assert.notStrictEqual(result.exitCode, 0);
+  assert.match(result.output, /token-no-definido/);
+});
+
+test('emite reporte por app con component-adjustment-needed', () => {
+  createMinimalApp('home');
+  createMinimalApp('planning-board');
+
+  const result = runValidate();
+  assert.strictEqual(result.exitCode, 0, result.output);
+  assert.match(result.output, /Style compliance report:/);
+  assert.match(result.output, /component-adjustment-needed/);
+  assert.match(result.output, /home.*component-adjustment-needed:\s*false/i);
+  assert.match(result.output, /planning-board.*component-adjustment-needed:\s*false/i);
 });

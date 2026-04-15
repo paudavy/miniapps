@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { AppShell } from '../components/AppShell';
 import { useEffect } from 'preact/hooks';
 import { TopBar } from '../features/board/ui/TopBar';
 import { Toolbar } from '../features/board/ui/Toolbar';
@@ -26,10 +27,11 @@ export function App(): h.JSX.Element {
   }, []);
 
   return (
+    <AppShell>
     <div className="app">
-      <div className="app__topbar">
+      {/* <div className="app__topbar">
         <TopBar />
-      </div>
+      </div> */}
       <div className="app__toolbar">
         <Toolbar />
       </div>
@@ -41,6 +43,6 @@ export function App(): h.JSX.Element {
       </div>
       <HoverPopover />
       <ContextMenu />
-    </div>
+    </div></AppShell>
   );
 }
