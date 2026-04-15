@@ -55,6 +55,23 @@ function copyDefaultIcons(appDir) {
   }
   copyFileSync(join(src, 'pwa-192.png'), join(publicDir, 'pwa-192.png'));
   copyFileSync(join(src, 'pwa-512.png'), join(publicDir, 'pwa-512.png'));
+  copyFileSync(join(src, 'pwa-maskable-512.png'), join(publicDir, 'pwa-maskable-512.png'));
+}
+
+function copyDefaultScreenshots(appDir) {
+  const screenshotsDir = join(appDir, 'public', 'screenshots');
+  mkdirSync(screenshotsDir, { recursive: true });
+  const candidates = [
+    resolve(process.cwd(), 'assets/pwa'),
+    join(dirname(fileURLToPath(import.meta.url)), '..', 'static')
+  ];
+  const src = candidates.find((p) => existsSync(p));
+  if (!src) {
+    console.warn('No default screenshots found; skipping screenshot copy.');
+    return;
+  }
+  copyFileSync(join(src, 'desktop.png'), join(screenshotsDir, 'desktop.png'));
+  copyFileSync(join(src, 'mobile.png'), join(screenshotsDir, 'mobile.png'));
 }
 
 function buildIndexHtml({ title, theme, router }) {
@@ -92,7 +109,7 @@ function buildViteConfig({ pwa }) {
     ? `,
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['pwa-192.png', 'pwa-512.png', 'pwa-512-maskable.png'],
+      includeAssets: ['pwa-192.png', 'pwa-512.png', 'pwa-maskable-512.png'],
       manifest: {
         id: base,
         name: appConfig.title,
@@ -115,6 +132,9 @@ function buildViteConfig({ pwa }) {
         ],
         categories: ['utilities'],
         lang: 'es'
+      },
+      workbox: {
+        navigateFallback: 'index.html'
       }
     })`
     : '';
@@ -251,7 +271,9 @@ export function registerSW(): void {
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch((error) => {
+      navigator.serviceWorker.register(\`\${import.meta.env.BASE_URL}sw.js\`, {
+        scope: import.meta.env.BASE_URL
+      }).catch((error) => {
         console.error('[registerSW] service worker registration failed', error);
       });
     }, { once: true });
@@ -359,6 +381,7 @@ function generateFiles(args) {
 
   if (args.pwa) {
     copyDefaultIcons(appDir);
+    copyDefaultScreenshots(appDir);
   }
 
   if (args.router) {

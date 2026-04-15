@@ -16,7 +16,7 @@ export default defineConfig({
     preact(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['pwa-192.png', 'pwa-512.png', 'pwa-512-maskable.png'],
+      includeAssets: ['pwa-192.png', 'pwa-512.png', 'pwa-maskable-512.png'],
       devOptions: {
         enabled: true,
       },

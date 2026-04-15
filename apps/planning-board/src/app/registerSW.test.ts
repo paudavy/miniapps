@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { installPrompt, isInstalled } from '../features/board/state/signals';
+import { installPrompt, installPromptVersion, isInstalled } from '../features/board/state/signals';
 import { registerSW } from './registerSW';
 
 describe('registerSW', () => {
   beforeEach(() => {
     installPrompt.value = null;
+    installPromptVersion.value = 0;
     isInstalled.value = false;
     vi.restoreAllMocks();
     Reflect.deleteProperty(navigator, 'serviceWorker');
@@ -24,7 +25,9 @@ describe('registerSW', () => {
     window.dispatchEvent(new Event('load'));
     await Promise.resolve();
 
-    expect(register).toHaveBeenCalledWith('/sw.js');
+    expect(register).toHaveBeenCalledWith(`${import.meta.env.BASE_URL}sw.js`, {
+      scope: import.meta.env.BASE_URL,
+    });
     expect(errorSpy).toHaveBeenCalledWith('[registerSW] service worker registration failed', error);
   });
 
@@ -41,9 +44,11 @@ describe('registerSW', () => {
     window.dispatchEvent(event);
 
     expect(installPrompt.value).toBe(event);
+    expect(installPromptVersion.value).toBe(1);
 
     window.dispatchEvent(new Event('appinstalled'));
     expect(isInstalled.value).toBe(true);
     expect(installPrompt.value).toBeNull();
+    expect(installPromptVersion.value).toBe(2);
   });
 });

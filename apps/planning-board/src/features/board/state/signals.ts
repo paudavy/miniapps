@@ -28,6 +28,7 @@ export const currentSlot = signal<number | null>((() => {
   return Number.isNaN(value) ? 0 : Math.max(0, value);
 })());
 export const installPrompt = signal<BeforeInstallPromptEvent | null>(null);
+export const installPromptVersion = signal<number>(0);
 export const isInstalled = signal<boolean>(false);
 export const editingAssignmentId = signal<string | null>(null);
 export const deletingProfileId = signal<string | null>(null);

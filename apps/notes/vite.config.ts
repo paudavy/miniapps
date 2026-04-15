@@ -16,19 +16,32 @@ export default defineConfig({
     preact(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['pwa-192.png', 'pwa-512.png'],
+      includeAssets: ['pwa-192.png', 'pwa-512.png', 'pwa-maskable-512.png'],
+      devOptions: {
+        enabled: true,
+      },
       manifest: {
+        id: base,
         name: appConfig.title,
         short_name: appConfig.title,
         start_url: base,
         scope: base,
         display: 'standalone',
+        orientation: 'portrait',
         background_color: appConfig.backgroundColor,
         theme_color: appConfig.themeColor,
+        description: appConfig.description,
         icons: [
-          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-        ]
+          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'pwa-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+        ],
+        screenshots: [
+          { src: 'screenshots/desktop.png', sizes: '1280x720', type: 'image/png', form_factor: 'wide' },
+          { src: 'screenshots/mobile.png', sizes: '390x844', type: 'image/png' }
+        ],
+        categories: ['utilities'],
+        lang: 'es'
       },
       workbox: {
         navigateFallback: 'index.html'
