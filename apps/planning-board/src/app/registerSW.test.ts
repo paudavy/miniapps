@@ -1,12 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { installPrompt, installPromptVersion, isInstalled } from '../features/board/state/signals';
-import { registerSW } from './registerSW';
+import { getInstallState, registerSW } from './registerSW';
 
 describe('registerSW', () => {
   beforeEach(() => {
-    installPrompt.value = null;
-    installPromptVersion.value = 0;
-    isInstalled.value = false;
     vi.restoreAllMocks();
     Reflect.deleteProperty(navigator, 'serviceWorker');
   });
@@ -43,12 +39,9 @@ describe('registerSW', () => {
     registerSW();
     window.dispatchEvent(event);
 
-    expect(installPrompt.value).toBe(event);
-    expect(installPromptVersion.value).toBe(1);
+    expect(getInstallState()).toEqual({ canInstall: true, isInstalled: false });
 
     window.dispatchEvent(new Event('appinstalled'));
-    expect(isInstalled.value).toBe(true);
-    expect(installPrompt.value).toBeNull();
-    expect(installPromptVersion.value).toBe(2);
+    expect(getInstallState()).toEqual({ canInstall: false, isInstalled: true });
   });
 });

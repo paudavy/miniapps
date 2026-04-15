@@ -14,9 +14,10 @@ vi.mock('../state/actions', () => ({
 
 vi.mock('./registerSW', () => ({
   registerSW: vi.fn(),
+  getInstallState: vi.fn(() => ({ canInstall: false, isInstalled: false })),
+  subscribeInstallState: vi.fn(() => vi.fn()),
+  triggerInstall: vi.fn(),
 }));
-
-vi.mock('../ui/TopBar', () => ({ TopBar: () => <div>top</div> }));
 vi.mock('../ui/Toolbar', () => ({ Toolbar: () => <div>toolbar</div> }));
 vi.mock('../ui/SchedulerPane', () => ({ SchedulerPane: () => <div>scheduler</div> }));
 vi.mock('../ui/ContextMenu', () => ({ ContextMenu: () => <div>menu</div> }));

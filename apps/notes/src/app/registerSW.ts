@@ -8,9 +8,9 @@ interface InstallState {
   isInstalled: boolean;
 }
 
-let hasRegistered = false;
 let installPrompt: BeforeInstallPromptEvent | null = null;
 let installed = false;
+let hasRegistered = false;
 const listeners = new Set<() => void>();
 
 function notify() {
@@ -21,9 +21,9 @@ export function registerSW(): void {
   if (hasRegistered) return;
   hasRegistered = true;
 
-  window.addEventListener('beforeinstallprompt', (e: Event) => {
-    e.preventDefault();
-    installPrompt = e as BeforeInstallPromptEvent;
+  window.addEventListener('beforeinstallprompt', (event: Event) => {
+    event.preventDefault();
+    installPrompt = event as BeforeInstallPromptEvent;
     notify();
   });
 
@@ -58,11 +58,11 @@ export function subscribeInstallState(listener: () => void): () => void {
 
 export function triggerInstall(): void {
   const prompt = installPrompt;
-  if (prompt) {
-    prompt.prompt();
-    void prompt.userChoice.then(() => {
-      installPrompt = null;
-      notify();
-    });
-  }
+  if (!prompt) return;
+
+  prompt.prompt();
+  void prompt.userChoice.then(() => {
+    installPrompt = null;
+    notify();
+  });
 }

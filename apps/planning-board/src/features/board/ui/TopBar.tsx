@@ -1,5 +1,4 @@
 import { h } from 'preact';
-import { InstallButton } from './InstallButton';
 import './TopBar.css';
 
 export function TopBar(): h.JSX.Element {
@@ -9,8 +8,6 @@ export function TopBar(): h.JSX.Element {
         <span className="topbar__pip" />
         <span>ResPlanner</span>
       </div>
-      <div className="topbar__spacer" />
-      <InstallButton />
     </div>
   );
 }

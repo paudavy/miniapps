@@ -1,7 +1,6 @@
 import { h } from 'preact';
 import { AppShell } from '../components/AppShell';
 import { useEffect } from 'preact/hooks';
-import { TopBar } from '../features/board/ui/TopBar';
 import { Toolbar } from '../features/board/ui/Toolbar';
 import { SchedulerPane } from '../features/board/ui/SchedulerPane';
 import { ContextMenu } from '../features/board/ui/ContextMenu';
@@ -28,21 +27,19 @@ export function App(): h.JSX.Element {
 
   return (
     <AppShell>
-    <div className="app">
-      {/* <div className="app__topbar">
-        <TopBar />
-      </div> */}
-      <div className="app__toolbar">
-        <Toolbar />
+      <div className="app">
+        <div className="app__toolbar">
+          <Toolbar />
+        </div>
+        <div className="app__scheduler">
+          <SchedulerPane />
+        </div>
+        <div className="app__statsbar">
+          <StatsBar />
+        </div>
+        <HoverPopover />
+        <ContextMenu />
       </div>
-      <div className="app__scheduler">
-        <SchedulerPane />
-      </div>
-      <div className="app__statsbar">
-        <StatsBar />
-      </div>
-      <HoverPopover />
-      <ContextMenu />
-    </div></AppShell>
+    </AppShell>
   );
 }

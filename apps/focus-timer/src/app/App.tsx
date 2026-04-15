@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import { AppShell } from '../components/AppShell';
+import { registerSW } from './registerSW';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { STORAGE_PREFIX } from '../lib/constants';
 import { DEFAULT_MINUTES } from '../features/timer';
@@ -9,6 +10,10 @@ export function App() {
   const [remainingSeconds, setRemainingSeconds] = useState(minutes * 60);
   const [running, setRunning] = useState(false);
   const totalSeconds = minutes * 60;
+
+  useEffect(() => {
+    registerSW();
+  }, []);
 
   useEffect(() => {
     setRemainingSeconds(minutes * 60);

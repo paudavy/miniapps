@@ -1,10 +1,15 @@
-import { useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import { AppShell } from '../components/AppShell';
+import { registerSW } from './registerSW';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { STORAGE_PREFIX } from '../lib/constants';
 import { NoteList, type Note } from '../features/notes/NoteList';
 
 export function App() {
+  useEffect(() => {
+    registerSW();
+  }, []);
+
   const [draft, setDraft] = useState('');
   const [notes, setNotes] = useLocalStorage<Note[]>(`${STORAGE_PREFIX}items`, []);
 

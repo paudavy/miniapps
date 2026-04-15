@@ -27,9 +27,6 @@ export const currentSlot = signal<number | null>((() => {
   const value = Number.parseInt(raw, 10);
   return Number.isNaN(value) ? 0 : Math.max(0, value);
 })());
-export const installPrompt = signal<BeforeInstallPromptEvent | null>(null);
-export const installPromptVersion = signal<number>(0);
-export const isInstalled = signal<boolean>(false);
 export const editingAssignmentId = signal<string | null>(null);
 export const deletingProfileId = signal<string | null>(null);
 export const contextMenuTarget = signal<{ assignmentId: string; x: number; y: number } | null>(null);
@@ -57,8 +54,3 @@ effect(() => {
   if (currentSlot.value === null) { localStorage.removeItem('currentSlot'); return; }
   localStorage.setItem('currentSlot', String(Math.max(0, currentSlot.value)));
 });
-
-export interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
