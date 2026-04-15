@@ -1,11 +1,11 @@
 import { h } from 'preact';
-import { ProfileCreateForm } from './ProfileCreateForm';
-import { ViewToggle } from './ViewToggle';
-import { ExportButton } from './ExportButton';
-import { ZoomControl } from './ZoomControl';
-import { activeProfileId } from '../state/signals';
 import { createAssignment } from '../state/actions';
+import { activeProfileId } from '../state/signals';
+import { ExportButton } from './ExportButton';
+import { ProfileCreateForm } from './ProfileCreateForm';
 import './Toolbar.css';
+import { ViewToggle } from './ViewToggle';
+import { ZoomControl } from './ZoomControl';
 
 const PlusIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -27,10 +27,11 @@ export function Toolbar(): h.JSX.Element {
           className="toolbar__btn toolbar__btn--primary"
           disabled={!hasActiveProfile}
           onClick={() => activeProfileId.value && createAssignment(activeProfileId.value)}
+          title={hasActiveProfile ? "Add assignment" : "Select a profile row to add an assignment"}
         >
           <PlusIcon /> Add assignment
         </button>
-        {!hasActiveProfile && <span className="toolbar__hint">Select a profile row to add an assignment</span>}
+        {/* {!hasActiveProfile && <span className="toolbar__hint">Select a profile row to add an assignment</span>} */}
       </div>
       <div className="toolbar__sep" />
       <div className="toolbar__group">
@@ -41,6 +42,7 @@ export function Toolbar(): h.JSX.Element {
       <div className="toolbar__group">
         <ExportButton />
       </div>
+      <div style="width:100%" />
     </div>
   );
 }

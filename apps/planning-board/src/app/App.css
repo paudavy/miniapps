@@ -1,4 +1,4 @@
-.app-shell {
+/* .app-shell {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -7,29 +7,29 @@
   max-width: none;
   margin: 0;
   padding: 0;
-}
+} */
 
-.app-shell__header {
+/* .app-shell__header {
   padding: 8px 16px;
   background: var(--board-surface);
   border-bottom: 1px solid var(--board-border-2);
   margin: 0;
-}
+} */
 
-.app-shell > main {
+/* .app-shell > main {
   flex: 1;
   min-height: 0;
   display: flex;
-}
+} */
 
-.app {
+/* .app {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
   overflow: hidden;
   background: var(--board-bg);
-}
+} */
 
 .app__topbar {
   flex: 0 0 var(--topbar-height);

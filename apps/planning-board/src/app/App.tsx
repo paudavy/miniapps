@@ -28,6 +28,8 @@ export function App(): h.JSX.Element {
   return (
     <AppShell>
       <div className="app">
+        <section class="grid">
+        <div class="card">
         <div className="app__toolbar">
           <Toolbar />
         </div>
@@ -39,6 +41,8 @@ export function App(): h.JSX.Element {
         </div>
         <HoverPopover />
         <ContextMenu />
+         </div>
+      </section>
       </div>
     </AppShell>
   );

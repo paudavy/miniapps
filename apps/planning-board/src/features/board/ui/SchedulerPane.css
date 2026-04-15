@@ -1,4 +1,4 @@
-.scheduler-pane { height: 100%; overflow: auto; position: relative; background: var(--board-surface-2); scrollbar-width: thin; scrollbar-color: var(--board-border-2) transparent; }
+.scheduler-pane { height: 100%; overflow: auto; position: relative; scrollbar-width: thin; scrollbar-color: var(--board-border-2) transparent; }
 .scheduler-pane::-webkit-scrollbar { width: 5px; height: 5px; }
 .scheduler-pane::-webkit-scrollbar-thumb { background: var(--board-border-2); border-radius: 3px; }
 .scheduler-pane__header { display: flex; position: sticky; top: 0; z-index: 10; background: var(--board-surface); }
