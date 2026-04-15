@@ -1,9 +1,19 @@
 #!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { RESERVED_APP_NAMES, SCAFFOLD_DEFAULTS, isValidSlug } from '../../../scripts/lib/miniapps.mjs';
+import {
+  RESERVED_APP_NAMES,
+  SCAFFOLD_DEFAULTS,
+  isValidSlug,
+} from '../../../scripts/lib/miniapps.mjs';
 
 function parseArgs(argv) {
   const args = { slug: argv[2], ...SCAFFOLD_DEFAULTS };
@@ -15,10 +25,17 @@ function parseArgs(argv) {
     else if (current === '--listed=false') args.listed = false;
     else if (current === '--title') args.title = argv[++index] || '';
     else if (current === '--desc') args.desc = argv[++index] || '';
-    else if (current === '--theme') args.theme = argv[++index] || SCAFFOLD_DEFAULTS.theme;
-    else if (current === '--background') args.background = argv[++index] || SCAFFOLD_DEFAULTS.background;
-    else if (current === '--category') args.category = argv[++index] || undefined;
-    else if (current === '--tags') args.tags = (argv[++index] || '').split(',').map((value) => value.trim()).filter(Boolean);
+    else if (current === '--theme')
+      args.theme = argv[++index] || SCAFFOLD_DEFAULTS.theme;
+    else if (current === '--background')
+      args.background = argv[++index] || SCAFFOLD_DEFAULTS.background;
+    else if (current === '--category')
+      args.category = argv[++index] || undefined;
+    else if (current === '--tags')
+      args.tags = (argv[++index] || '')
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean);
     else if (current === '--icon') args.icon = argv[++index] || undefined;
   }
 
@@ -32,7 +49,10 @@ function ensureValidSlug(slug) {
 }
 
 function titleFromSlug(slug) {
-  return slug.split('-').map((part) => part[0].toUpperCase() + part.slice(1)).join(' ');
+  return slug
+    .split('-')
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(' ');
 }
 
 function write(relativePath, content) {
@@ -46,7 +66,7 @@ function copyDefaultIcons(appDir) {
   mkdirSync(publicDir, { recursive: true });
   const candidates = [
     resolve(process.cwd(), 'assets/pwa'),
-    join(dirname(fileURLToPath(import.meta.url)), '..', 'static')
+    join(dirname(fileURLToPath(import.meta.url)), '..', 'static'),
   ];
   const src = candidates.find((p) => existsSync(p));
   if (!src) {
@@ -55,7 +75,10 @@ function copyDefaultIcons(appDir) {
   }
   copyFileSync(join(src, 'pwa-192.png'), join(publicDir, 'pwa-192.png'));
   copyFileSync(join(src, 'pwa-512.png'), join(publicDir, 'pwa-512.png'));
-  copyFileSync(join(src, 'pwa-maskable-512.png'), join(publicDir, 'pwa-maskable-512.png'));
+  copyFileSync(
+    join(src, 'pwa-maskable-512.png'),
+    join(publicDir, 'pwa-maskable-512.png'),
+  );
 }
 
 function copyDefaultScreenshots(appDir) {
@@ -63,7 +86,7 @@ function copyDefaultScreenshots(appDir) {
   mkdirSync(screenshotsDir, { recursive: true });
   const candidates = [
     resolve(process.cwd(), 'assets/pwa'),
-    join(dirname(fileURLToPath(import.meta.url)), '..', 'static')
+    join(dirname(fileURLToPath(import.meta.url)), '..', 'static'),
   ];
   const src = candidates.find((p) => existsSync(p));
   if (!src) {
@@ -103,8 +126,10 @@ function buildIndexHtml({ title, theme, router }) {
 
 function buildViteConfig({ pwa }) {
   const baseLine = `  return repo ? \`/\${repo}/\${appConfig.name}/\` : \`/\${appConfig.name}/\`;`;
-  const pwaImport = pwa ? `import { VitePWA } from 'vite-plugin-pwa';
-` : '';
+  const pwaImport = pwa
+    ? `import { VitePWA } from 'vite-plugin-pwa';
+`
+    : '';
   const pwaPlugin = pwa
     ? `,
     VitePWA({
@@ -211,8 +236,10 @@ ${setup}  return (
 }
 
 function buildAppShellTsx({ title, description, pwa }) {
-  const importLine = pwa ? `import { InstallButton } from './InstallButton';
-` : '';
+  const importLine = pwa
+    ? `import { InstallButton } from './InstallButton';
+`
+    : '';
   const installButton = pwa ? '\n        <InstallButton />' : '';
 
   return `import type { ComponentChildren } from 'preact';
@@ -319,8 +346,12 @@ export function InstallButton() {
   if (!installState.canInstall || installState.isInstalled) return null;
 
   return (
-    <button type="button" onClick={triggerInstall}>
-      Install App
+    <button type="button" class="install-btn" onClick={triggerInstall} aria-label="Instalar app" title="Instalar app">
+      <svg class="install-btn__icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="20" height="20">
+        <path d="M10 3v9.5M6 9l4 4 4-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4 15.5h12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+      </svg>
+      <span class="install-btn__label" aria-hidden="true">Instalar</span>
     </button>
   );
 }
@@ -343,40 +374,57 @@ function generateFiles(args) {
     backgroundColor: args.background,
     ...(args.icon ? { icon: args.icon } : {}),
     ...(args.tags?.length ? { tags: args.tags } : {}),
-    ...(args.category ? { category: args.category } : {})
+    ...(args.category ? { category: args.category } : {}),
   };
   const devDependencies = {
     '@preact/preset-vite': '^2.10.1',
     typescript: '^5.9.3',
     vite: '^7.1.0',
-    ...(args.pwa ? { 'vite-plugin-pwa': '^1.0.0' } : {})
+    ...(args.pwa ? { 'vite-plugin-pwa': '^1.0.0' } : {}),
   };
 
   write(join(appDir, 'app.config.json'), JSON.stringify(appConfig, null, 2));
 
-  write(join(appDir, 'package.json'), JSON.stringify({
-    name: `@miniapps/${slug}`,
-    private: true,
-    version: '0.1.0',
-    type: 'module',
-    scripts: {
-      dev: 'vite',
-      build: 'vite build',
-      preview: 'vite preview'
-    },
-    dependencies: {
-      preact: '^10.26.4'
-    },
-    devDependencies
-  }, null, 2));
+  write(
+    join(appDir, 'package.json'),
+    JSON.stringify(
+      {
+        name: `@miniapps/${slug}`,
+        private: true,
+        version: '0.1.0',
+        type: 'module',
+        scripts: {
+          dev: 'vite',
+          build: 'vite build',
+          preview: 'vite preview',
+        },
+        dependencies: {
+          preact: '^10.26.4',
+        },
+        devDependencies,
+      },
+      null,
+      2,
+    ),
+  );
 
-  write(join(appDir, 'tsconfig.json'), JSON.stringify({
-    extends: '../../tsconfig.base.json',
-    compilerOptions: { types: ['vite/client'] },
-    include: ['src', 'vite.config.ts']
-  }, null, 2));
+  write(
+    join(appDir, 'tsconfig.json'),
+    JSON.stringify(
+      {
+        extends: '../../tsconfig.base.json',
+        compilerOptions: { types: ['vite/client'] },
+        include: ['src', 'vite.config.ts'],
+      },
+      null,
+      2,
+    ),
+  );
 
-  write(join(appDir, 'index.html'), buildIndexHtml({ title, theme: args.theme, router: args.router }));
+  write(
+    join(appDir, 'index.html'),
+    buildIndexHtml({ title, theme: args.theme, router: args.router }),
+  );
   write(join(appDir, 'vite.config.ts'), buildViteConfig({ pwa: args.pwa }));
 
   if (args.pwa) {
@@ -388,23 +436,34 @@ function generateFiles(args) {
     write(join(appDir, 'public/404.html'), build404Html({ slug, title }));
   }
 
-  write(join(appDir, 'src/main.tsx'), `import { render } from 'preact';
+  write(
+    join(appDir, 'src/main.tsx'),
+    `import { render } from 'preact';
 import { App } from './app/App';
 import './styles/index.css';
 
 render(<App />, document.getElementById('app')!);
-`);
+`,
+  );
 
   write(join(appDir, 'src/app/App.tsx'), buildAppTsx({ title, pwa: args.pwa }));
 
-  write(join(appDir, 'src/components/AppShell.tsx'), buildAppShellTsx({ title, description, pwa: args.pwa }));
+  write(
+    join(appDir, 'src/components/AppShell.tsx'),
+    buildAppShellTsx({ title, description, pwa: args.pwa }),
+  );
 
   if (args.pwa) {
     write(join(appDir, 'src/app/registerSW.ts'), buildRegisterSWTs());
-    write(join(appDir, 'src/components/InstallButton.tsx'), buildInstallButtonTsx());
+    write(
+      join(appDir, 'src/components/InstallButton.tsx'),
+      buildInstallButtonTsx(),
+    );
   }
 
-  write(join(appDir, 'src/hooks/useLocalStorage.ts'), `import { useEffect, useState } from 'preact/hooks';
+  write(
+    join(appDir, 'src/hooks/useLocalStorage.ts'),
+    `import { useEffect, useState } from 'preact/hooks';
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [value, setValue] = useState<T>(() => {
@@ -422,13 +481,19 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
   return [value, setValue] as const;
 }
-`);
+`,
+  );
 
-  write(join(appDir, 'src/lib/constants.ts'), `export const APP_NAME = '${slug}';
+  write(
+    join(appDir, 'src/lib/constants.ts'),
+    `export const APP_NAME = '${slug}';
 export const STORAGE_PREFIX = 'miniapps:${slug}:';
-`);
+`,
+  );
   write(join(appDir, 'src/features/.gitkeep'), '');
-  write(join(appDir, 'src/styles/index.css'), `/* Shared base identity (imported) */
+  write(
+    join(appDir, 'src/styles/index.css'),
+    `/* Shared base identity (imported) */
 @import "../../../../styles/base.css";
 
 :root {
@@ -453,11 +518,14 @@ export const STORAGE_PREFIX = 'miniapps:${slug}:';
   --input-height: 48px;
   --input-radius: var(--radius-md);
 }
-`);
+`,
+  );
 }
 
 function runPostGeneration() {
-  execFileSync('node', ['scripts/generate-home-registry.mjs'], { stdio: 'inherit' });
+  execFileSync('node', ['scripts/generate-home-registry.mjs'], {
+    stdio: 'inherit',
+  });
   execFileSync('node', ['scripts/validate-miniapps.mjs'], { stdio: 'inherit' });
 }
 
@@ -480,7 +548,9 @@ function main() {
     runPostGeneration();
     console.log(`Miniapp "${args.slug}" creada correctamente.`);
   } catch (error) {
-    console.error(`Miniapp "${args.slug}" creada, pero falló la post-generación del repo.`);
+    console.error(
+      `Miniapp "${args.slug}" creada, pero falló la post-generación del repo.`,
+    );
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
   }

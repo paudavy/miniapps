@@ -189,48 +189,80 @@ a.install-btn {
   right: 0;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  padding: 0;
-  border: 1px solid color-mix(in srgb, var(--color-accent-primary) 18%, white);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.42), transparent 48%),
-    linear-gradient(145deg, var(--color-accent-hover), var(--color-accent-primary));
+  gap: 0;
+  overflow: hidden;
+  width: 48px;
+  height: 48px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--color-accent-primary);
   color: var(--color-neutral-white);
-  box-shadow:
-    0 12px 24px rgba(0, 79, 135, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
   cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(0, 79, 135, 0.28);
+  animation: install-beacon 3s ease-out 1.2s infinite;
   transition:
-    transform var(--transition-fast),
-    box-shadow var(--transition-fast),
-    filter var(--transition-fast);
+    width 0.32s cubic-bezier(0.34, 1.4, 0.64, 1),
+    gap 0.28s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+@keyframes install-beacon {
+  0%, 100% {
+    box-shadow: 0 2px 10px rgba(0, 79, 135, 0.28), 0 0 0 0 rgba(0, 79, 135, 0.32);
+  }
+  55% {
+    box-shadow: 0 2px 10px rgba(0, 79, 135, 0.28), 0 0 0 9px rgba(0, 79, 135, 0);
+  }
 }
 
 button.install-btn:hover,
 a.install-btn:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow:
-    0 16px 30px rgba(0, 79, 135, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28);
-  filter: saturate(1.08);
+  width: 136px;
+  gap: 8px;
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 79, 135, 0.32);
+  animation: none;
 }
 
 button.install-btn:active,
 a.install-btn:active {
-  transform: translateY(0) scale(0.98);
-  box-shadow:
-    0 10px 18px rgba(0, 79, 135, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 2px 8px rgba(0, 79, 135, 0.22);
+  background: var(--color-accent-active);
 }
 
 .install-btn__icon {
-  font-size: 1.35rem;
-  line-height: 1;
-  font-weight: 700;
-  transform: translateY(-1px);
+  flex-shrink: 0;
+  transition: transform 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+button.install-btn:hover .install-btn__icon,
+a.install-btn:hover .install-btn__icon {
+  transform: translateY(1.5px);
+}
+
+.install-btn__label {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-width 0.28s ease 0.04s,
+    opacity 0.18s ease 0.1s;
+}
+
+button.install-btn:hover .install-btn__label,
+a.install-btn:hover .install-btn__label {
+  max-width: 90px;
+  opacity: 1;
 }
 
 @media (max-width: 640px) {
