@@ -1,6 +1,6 @@
 export const PROFILE_COLOR_PALETTE = [
   // Paleta intermedia: mantiene suavidad pero más saturada
-  '#5B8FD6', /* softened blue (readable with black text) */
+  '#87b0e8', /* softened blue (readable with black text) */
   '#66D4A3', /* softened mint */
   '#FFDF70', /* warm pale yellow */
   '#FF9CCF', /* soft pink */
