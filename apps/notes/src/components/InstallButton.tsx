@@ -11,8 +11,8 @@ export function InstallButton() {
   if (!installState.canInstall || installState.isInstalled) return null;
 
   return (
-    <button type="button" onClick={triggerInstall}>
-      Install App
+    <button type="button" class="install-btn" onClick={triggerInstall} aria-label="Install app" title="Install app">
+      <span class="install-btn__icon" aria-hidden="true">↓</span>
     </button>
   );
 }

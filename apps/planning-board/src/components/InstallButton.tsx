@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
 import { getInstallState, subscribeInstallState, triggerInstall } from '../app/registerSW';
-import '../features/board/ui/InstallButton.css';
 
 export function InstallButton() {
   const [installState, setInstallState] = useState(() => getInstallState());
@@ -12,8 +11,8 @@ export function InstallButton() {
   if (!installState.canInstall || installState.isInstalled) return null;
 
   return (
-    <button type="button" class="install-btn" onClick={triggerInstall}>
-      Install App
+    <button type="button" class="install-btn" onClick={triggerInstall} aria-label="Install app" title="Install app">
+      <span class="install-btn__icon" aria-hidden="true">↓</span>
     </button>
   );
 }
